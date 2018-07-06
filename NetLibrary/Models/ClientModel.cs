@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace NetLibrary.Models
 {
     [Serializable()]
-    public class Client : INotifyPropertyChanged
+    public class ClientModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

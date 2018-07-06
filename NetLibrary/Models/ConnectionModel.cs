@@ -1,9 +1,8 @@
-﻿using NetLibrary.Models;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
-namespace Server.Models
+namespace NetLibrary.Models
 {
-    public class Connection: Client
+    public class ConnectionModel: ClientModel
     {
         private TcpClient _tcpSocket;
         ///<summary>

@@ -1,5 +1,5 @@
-﻿
-using System.Net.Sockets;
+﻿using NetLibrary.Classes;
+using System;
 using System.Threading.Tasks;
 
 namespace NetLibrary.Interfaces
@@ -12,19 +12,18 @@ namespace NetLibrary.Interfaces
         /// <param name="ip">Server Ip</param>
         /// <param name="port">Server port</param>
         /// <param name="error">Error which can happed during connection</param>
-        /// <returns></returns>
-        Task<TcpClient> ConnectToServer(string ip, string port, out string error);
+        void ConnectToServer(string ip, int port, out string error);
 
         /// <summary>
-        /// Send request to server
+        /// Send async request to server
         /// </summary>
         /// <param name="requestData">Data which need transfer to server</param>
-        Task SendRequest(byte[] requestData);
+        void SendRequestAsync(Packet requestData, out string error);
 
         /// <summary>
-        /// Receive request from server
+        /// Receive async request from server
         /// </summary>
         /// <returns>Data array which returns server</returns>
-        Task<byte[]> ReceiveRequest();
+        Task<Packet> ReceiveRequestAsync();
     }
 }

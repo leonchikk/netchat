@@ -40,6 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ActionState.cs" />
+    <Compile Include="Classes\Client.cs" />
+    <Compile Include="Classes\Connection.cs" />
+    <Compile Include="Classes\NetHelper.cs" />
+    <Compile Include="Classes\Packet.cs" />
+    <Compile Include="Classes\Server.cs" />
+    <Compile Include="Classes\UserState.cs" />
+    <Compile Include="EventsArgs\ReceiveResponseArgs.cs" />
+    <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IServer.cs" />
+    <Compile Include="Models\ClientModel.cs" />
+    <Compile Include="Models\ConnectionModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using Net = NetLibrary.Classes;
 
 namespace Server
 {
@@ -23,6 +11,10 @@ namespace Server
         public MainWindow()
         {
             InitializeComponent();
+            string error;
+
+            Net.Server server = new Net.Server();
+            server.Start("127.0.0.1", 27015, out error);
         }
     }
 }
