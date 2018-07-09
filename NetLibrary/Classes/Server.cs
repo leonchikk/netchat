@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using System;
 using System.Net.Sockets;
 using System.Net;
-using static NetLibrary.Classes.Connection;
 using NetLibrary.EventsArgs;
+using NetLibrary.States;
+using NetLibrary.Helpers;
 
 namespace NetLibrary.Classes
 {
@@ -50,18 +51,31 @@ namespace NetLibrary.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public void SendResponse(Packet responseData, Connection targetClient)
+        public void SendResponse(Packet responseData, List<Connection> targetClients, Connection initiator)
         {
-            NetHelper.SendDataAsync(targetClient.User.TcpSocket, responseData);
+            targetClients?.ForEach(client => NetHelper.SendDataAsync(client?.User?.TcpSocket, responseData));
+        }
+
+        /// <summary>
+        /// Method which broadcast needed data to other client
+        /// </summary>
+        /// <param name="responseData">Data which need transfer to client</param>
+        /// <param name="targetClient">Client which have to receive data</param>
+        public void SendResponse(Packet responseData, Connection targetClient, Connection initiator)
+        {
+            if (targetClient == initiator)
+                return;
+
+            NetHelper.SendDataAsync(targetClient?.User?.TcpSocket, responseData);
         }
 
         /// <summary>
         /// Send response data to all users which connected to server
         /// </summary>
         /// <param name="responseData">Data which need transfer to all clients</param>
-        public void BroadcastResponse (Packet responseData)
+        public void BroadcastResponse (Packet responseData, Connection initiator)
         {
-            CurrentConnections.ForEach(connection => SendResponse(responseData, connection));
+            CurrentConnections.ForEach(connection => SendResponse(responseData, connection, initiator));
         }
 
         /// <summary>
@@ -93,7 +107,8 @@ namespace NetLibrary.Classes
                 
                 CurrentConnections.Add(connection);
 
-                connection.OnReceivedResponse += Connection_OnReceivedResponse;
+                connection.OnReceivedMessage += Connection_OnReceivedMessage; ;
+                connection.OnDisconnected += Connection_OnDisconnected;
 
                 connection.StartReceiveResponses();
 
@@ -103,9 +118,18 @@ namespace NetLibrary.Classes
         /// <summary>
         /// Event which invoke when server receive new response from other world
         /// </summary>
-        private void Connection_OnReceivedResponse(object sender, ReceiveResponseArgs e)
+        private void Connection_OnDisconnected(Connection sender, ReceivedPacketEventsArgs e)
         {
-            BroadcastResponse(e.ReceivedPacket);
+            CloseConnection(sender);
+            CurrentConnections.Remove(sender);
+        }
+
+        /// <summary>
+        /// Event which invoke when server receive new response from other world
+        /// </summary>
+        private void Connection_OnReceivedMessage(Connection sender, ReceivedPacketEventsArgs e)
+        {
+            BroadcastResponse(e.ReceivedPacket, sender);
         }
 
         /// <summary>

@@ -1,6 +1,8 @@
 ﻿using NetLibrary.EventsArgs;
+using NetLibrary.Helpers;
 using NetLibrary.Models;
 using System.Threading.Tasks;
+using NetLibrary.States;
 
 namespace NetLibrary.Classes
 {
@@ -9,10 +11,16 @@ namespace NetLibrary.Classes
         public ConnectionModel User { get; set; }
 
         /// <summary>
+        /// Event which invoke when client send response
+        /// </summary>
+        public event ReceiveHandler OnReceivedMessage;
+        public delegate void ReceiveHandler(Connection sender, ReceivedPacketEventsArgs e);
+
+        /// <summary>
         /// Event which invoke when client disconnected from server
         /// </summary>
-        public event ReceiveHandler OnReceivedResponse;
-        public delegate void ReceiveHandler(object sender, ReceiveResponseArgs e);
+        public event DisconnectHandler OnDisconnected;
+        public delegate void DisconnectHandler(Connection sender, ReceivedPacketEventsArgs e);
 
         public void StartReceiveResponses()
         {
@@ -22,8 +30,11 @@ namespace NetLibrary.Classes
                 {
                     var responseData = await NetHelper.GetDataAsync(User.TcpSocket);
 
-                    //Invoke event
-                    OnReceivedResponse(this, new ReceiveResponseArgs(responseData));
+                    if (responseData.ActionState == ActionState.Disconnect)
+                        OnDisconnected(this, new ReceivedPacketEventsArgs(responseData));
+
+                    if(responseData.ActionState == ActionState.Message)
+                        OnReceivedMessage(this, new ReceivedPacketEventsArgs(responseData));
                 }
             });
         }

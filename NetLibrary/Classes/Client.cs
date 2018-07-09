@@ -3,6 +3,10 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using NetLibrary.Interfaces;
 using NetLibrary.EventsArgs;
+using NetLibrary.Helpers;
+using NetLibrary.States;
+using NetLibrary.Models;
+using System.Collections.Generic;
 
 namespace NetLibrary.Classes
 {
@@ -20,12 +24,23 @@ namespace NetLibrary.Classes
         /// </summary>
         public event ConnectionHandler OnDisconnected;
         public delegate void ConnectionHandler(object sender, EventArgs e);
+        
+        /// <summary>
+        /// Event which invoke when client received message from server
+        /// </summary>
+        public event ReceiveMessageHandler OnReceiveMessage;
+        public delegate void ReceiveMessageHandler(object sender, ReceviedMessageEventsArgs e);
 
         /// <summary>
-        /// Event which invoke when client received response from server
+        /// Event which invoke when new user disconnected from server
         /// </summary>
-        public event ReceiveResponseHandler OnReceivedResponse;
-        public delegate void ReceiveResponseHandler(object sender, ReceiveResponseArgs e);
+        public event ReceiveResponseHandler OnUserDisconnected;
+
+        /// <summary>
+        /// Event which invoke when new user connected to server
+        /// </summary>
+        public event ReceiveResponseHandler OnUserJoin;
+        public delegate void ReceiveResponseHandler(object sender, ReceivedPacketEventsArgs e);
 
         private TcpClient _tcpSocket;
         /// <summary>
@@ -58,8 +73,15 @@ namespace NetLibrary.Classes
             set
             {
                 _receivedPacket = value;
-                //Invoke event
-                OnReceivedResponse(this, new ReceiveResponseArgs(value));
+
+                if(_receivedPacket?.ActionState == ActionState.Connect)
+                    OnUserJoin(this, new ReceivedPacketEventsArgs(_receivedPacket));
+
+                if (_receivedPacket?.ActionState == ActionState.Disconnect)
+                    OnUserDisconnected(this, new ReceivedPacketEventsArgs(_receivedPacket));
+
+                if (_receivedPacket?.ActionState == ActionState.Message)
+                    OnReceiveMessage(this, new ReceviedMessageEventsArgs(_receivedPacket.Conversation.Sender, _receivedPacket.Conversation.Message));
             }
             get
             {
@@ -67,15 +89,15 @@ namespace NetLibrary.Classes
             }
         }
 
-        public void ConnectToServer(string ip, int port, out string error)
+        /// <summary>
+        /// Connect to remote/local server
+        /// </summary>
+        public void ConnectToServer(string ip, int port)
         {
-            error = string.Empty;
-
             try
             {
                 _tcpSocket = new TcpClient(ip, port);
 
-                //Invoke event
                 OnConnected(this, new EventArgs());
 
                 //Check new receives from server
@@ -89,14 +111,14 @@ namespace NetLibrary.Classes
             }
             catch (Exception ex)
             {
-                error = ex.Message;
-
-                //Invoke event
                 OnDisconnected(this, new EventArgs());
             }
         }
 
-        public async Task<Packet> ReceiveRequestAsync()
+        /// <summary>
+        /// Receive response data from server
+        /// </summary>
+        private async Task<Packet> ReceiveRequestAsync()
         {
             try
             {
@@ -108,18 +130,52 @@ namespace NetLibrary.Classes
             }
         }
 
-        public void SendRequestAsync(Packet requestData, out string error)
+        /// <summary>
+        /// Send request to remote/local server
+        /// </summary>
+        public void SendPacket(Packet requestData)
         {
-            error = string.Empty;
-
             try
             {
                 Task.Run(() => NetHelper.SendDataAsync(_tcpSocket, requestData));
             }
-            catch (Exception ex)
+            catch (Exception){ }
+        }
+
+        /// <summary>
+        /// Send message to other user
+        /// </summary>
+        /// <param name="target">User is whom need transfer message</param>
+        public void SendMessage(string message, ClientModel sender, ClientModel target)
+        {
+            Packet messagePacket = new Packet
             {
-                error = ex.Message;
-            }
+                ActionState = ActionState.Message,
+                ClientInfo = target,
+                Conversation = new ConversationModel
+                {
+                    Sender = sender,
+                    Target = target,
+                    Message = message
+                }
+            };
+
+            SendPacket(messagePacket);
+        }
+
+        /// <summary>
+        /// SendConnectionInfoServer
+        /// </summary>
+        public void SendConnectionInfo(ClientModel clientInfo)
+        {
+            Packet info = new Packet
+            {
+                ActionState = ActionState.Connect,
+                ClientInfo = clientInfo
+            };
+
+            SendPacket(info);
+
         }
     }
 }

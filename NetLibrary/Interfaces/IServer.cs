@@ -16,13 +16,13 @@ namespace NetLibrary.Interfaces
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        void SendResponse(Packet responseData, Connection targetClient);
+        void SendResponse(Packet responseData, Connection targetClient, Connection initiator);
 
         /// <summary>
         /// Send response data to all users which connected to server
         /// </summary>
         /// <param name="responseData">Data which need transfer to all clients</param>
-        void BroadcastResponse(Packet responseData);
+        void BroadcastResponse(Packet responseData, Connection initiator);
 
         void CloseConnection(Connection initiator);
 

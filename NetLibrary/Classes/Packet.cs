@@ -1,4 +1,5 @@
 ﻿using NetLibrary.Models;
+using NetLibrary.States;
 using System;
 
 namespace NetLibrary.Classes
@@ -8,6 +9,7 @@ namespace NetLibrary.Classes
     {
         public ClientModel ClientInfo { get; set; }
         public ActionState ActionState { get; set; }
-        public string Message { get; set; }
+        public ConversationModel Conversation { get; set; }
+        public string SystemMessage { get; set; }
     }
 }

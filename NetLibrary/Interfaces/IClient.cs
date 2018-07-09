@@ -1,6 +1,7 @@
 ﻿using NetLibrary.Classes;
+using NetLibrary.Models;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace NetLibrary.Interfaces
 {
@@ -12,18 +13,22 @@ namespace NetLibrary.Interfaces
         /// <param name="ip">Server Ip</param>
         /// <param name="port">Server port</param>
         /// <param name="error">Error which can happed during connection</param>
-        void ConnectToServer(string ip, int port, out string error);
+        void ConnectToServer(string ip, int port);
 
         /// <summary>
-        /// Send async request to server
+        /// Send message to other users
         /// </summary>
-        /// <param name="requestData">Data which need transfer to server</param>
-        void SendRequestAsync(Packet requestData, out string error);
+        /// <param name="target">User is whom need transfer message</param>
+        void SendMessage(string message, ClientModel sender, ClientModel target);
 
         /// <summary>
-        /// Receive async request from server
+        /// Send request to remote/local server
         /// </summary>
-        /// <returns>Data array which returns server</returns>
-        Task<Packet> ReceiveRequestAsync();
+        void SendPacket(Packet requestData);
+
+        /// <summary>
+        /// Send connection to server
+        /// </summary>
+        void SendConnectionInfo(ClientModel clientInfo);
     }
 }
