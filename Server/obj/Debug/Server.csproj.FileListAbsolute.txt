@@ -14,3 +14,5 @@ E:\SelfEducation\netchat\Server\obj\Debug\Server.Properties.Resources.resources
 E:\SelfEducation\netchat\Server\obj\Debug\Server.csproj.GenerateResource.Cache
 E:\SelfEducation\netchat\Server\obj\Debug\Server.exe
 E:\SelfEducation\netchat\Server\obj\Debug\Server.pdb
+E:\SelfEducation\netchat\Server\bin\Debug\DBLibrary.dll
+E:\SelfEducation\netchat\Server\bin\Debug\DBLibrary.pdb

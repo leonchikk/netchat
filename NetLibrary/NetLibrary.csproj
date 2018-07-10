@@ -40,17 +40,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EventsArgs\RecevieMessageEventsArgs.cs" />
-    <Compile Include="Models\ContactModel.cs" />
+    <Compile Include="Enums\CommandTypes.cs" />
+    <Compile Include="EventsArgs\ReceivedCommandEventsArgs.cs" />
+    <Compile Include="EventsArgs\ReceivedPacketEventsArgs.cs" />
+    <Compile Include="EventsArgs\ReceviedMessageEventsArgs.cs" />
+    <Compile Include="Models\CommandModel.cs" />
     <Compile Include="Models\ConversationModel.cs" />
-    <Compile Include="States\ActionState.cs" />
+    <Compile Include="Enums\ActionStates.cs" />
     <Compile Include="Classes\Client.cs" />
     <Compile Include="Classes\Connection.cs" />
     <Compile Include="Helpers\NetHelper.cs" />
     <Compile Include="Classes\Packet.cs" />
     <Compile Include="Classes\Server.cs" />
-    <Compile Include="States\UserState.cs" />
-    <Compile Include="EventsArgs\ReceivePacketEventsArgs.cs" />
+    <Compile Include="Enums\UserStates.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IServer.cs" />
     <Compile Include="Models\ClientModel.cs" />

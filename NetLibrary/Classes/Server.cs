@@ -6,7 +6,7 @@ using System;
 using System.Net.Sockets;
 using System.Net;
 using NetLibrary.EventsArgs;
-using NetLibrary.States;
+using NetLibrary.Enums;
 using NetLibrary.Helpers;
 
 namespace NetLibrary.Classes
@@ -86,7 +86,7 @@ namespace NetLibrary.Classes
             var newConnection = await _tcpListener.AcceptTcpClientAsync();
             var response = await NetHelper.GetDataAsync(newConnection);
 
-            if (response.ActionState == ActionState.Connect)
+            if (response.ActionState == ActionStates.Connect)
             {
                 var clientInfo = response.ClientInfo;
 
@@ -109,10 +109,19 @@ namespace NetLibrary.Classes
 
                 connection.OnReceivedMessage += Connection_OnReceivedMessage; ;
                 connection.OnDisconnected += Connection_OnDisconnected;
+                connection.OnReceivedCommand += Connection_OnReceivedCommand;
 
                 connection.StartReceiveResponses();
 
             }
+        }
+
+        /// <summary>
+        ///  Event which invoke when server receive new command from other world
+        /// </summary>
+        private void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
+        {
+           
         }
 
         /// <summary>

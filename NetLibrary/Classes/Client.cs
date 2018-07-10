@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NetLibrary.Interfaces;
 using NetLibrary.EventsArgs;
 using NetLibrary.Helpers;
-using NetLibrary.States;
+using NetLibrary.Enums;
 using NetLibrary.Models;
 using System.Collections.Generic;
 
@@ -42,6 +42,22 @@ namespace NetLibrary.Classes
         public event ReceiveResponseHandler OnUserJoin;
         public delegate void ReceiveResponseHandler(object sender, ReceivedPacketEventsArgs e);
 
+        private ClientModel _currentUser;
+        /// <summary>
+        /// Current user 
+        /// </summary>
+        public ClientModel CurrentUser
+        {
+            get
+            {
+                return _currentUser;
+            }
+            set
+            {
+                _currentUser = value;
+            }
+        } 
+
         private TcpClient _tcpSocket;
         /// <summary>
         /// Current client connection
@@ -74,13 +90,13 @@ namespace NetLibrary.Classes
             {
                 _receivedPacket = value;
 
-                if(_receivedPacket?.ActionState == ActionState.Connect)
+                if(_receivedPacket?.ActionState == ActionStates.Connect)
                     OnUserJoin(this, new ReceivedPacketEventsArgs(_receivedPacket));
 
-                if (_receivedPacket?.ActionState == ActionState.Disconnect)
+                if (_receivedPacket?.ActionState == ActionStates.Disconnect)
                     OnUserDisconnected(this, new ReceivedPacketEventsArgs(_receivedPacket));
 
-                if (_receivedPacket?.ActionState == ActionState.Message)
+                if (_receivedPacket?.ActionState == ActionStates.Message)
                     OnReceiveMessage(this, new ReceviedMessageEventsArgs(_receivedPacket.Conversation.Sender, _receivedPacket.Conversation.Message));
             }
             get
@@ -92,12 +108,13 @@ namespace NetLibrary.Classes
         /// <summary>
         /// Connect to remote/local server
         /// </summary>
-        public void ConnectToServer(string ip, int port)
+        public void ConnectToServer(string ip, int port, ClientModel userInfo)
         {
             try
             {
                 _tcpSocket = new TcpClient(ip, port);
 
+                CurrentUser = userInfo;
                 OnConnected(this, new EventArgs());
 
                 //Check new receives from server
@@ -146,15 +163,15 @@ namespace NetLibrary.Classes
         /// Send message to other user
         /// </summary>
         /// <param name="target">User is whom need transfer message</param>
-        public void SendMessage(string message, ClientModel sender, ClientModel target)
+        public void SendMessage(string message, ClientModel target)
         {
             Packet messagePacket = new Packet
             {
-                ActionState = ActionState.Message,
+                ActionState = ActionStates.Message,
                 ClientInfo = target,
                 Conversation = new ConversationModel
                 {
-                    Sender = sender,
+                    Sender = CurrentUser,
                     Target = target,
                     Message = message
                 }
@@ -164,18 +181,37 @@ namespace NetLibrary.Classes
         }
 
         /// <summary>
-        /// SendConnectionInfoServer
+        /// Send user info to server when he connected
         /// </summary>
-        public void SendConnectionInfo(ClientModel clientInfo)
+        private void SendConnectionInfo(ClientModel clientInfo)
         {
             Packet info = new Packet
             {
-                ActionState = ActionState.Connect,
+                ActionState = ActionStates.Connect,
                 ClientInfo = clientInfo
             };
 
             SendPacket(info);
 
+        }
+
+        /// <summary>
+        /// Send command to server
+        /// </summary>
+        /// <param name="commandType">Command type</param>
+        /// <param name="metaData">Command metadata</param>
+        public void SendCommand(CommandTypes commandType, string metaData)
+        {
+            CommandModel command = new CommandModel
+            {
+                Command = metaData,
+                CommandType = commandType
+            };
+        }
+
+        public void Close()
+        {
+            TcpSocket?.Close();
         }
     }
 }

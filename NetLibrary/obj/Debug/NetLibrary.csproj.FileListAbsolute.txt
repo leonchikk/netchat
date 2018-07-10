@@ -1,5 +1,5 @@
 E:\SelfEducation\netchat\NetLibrary\bin\Debug\NetLibrary.dll
 E:\SelfEducation\netchat\NetLibrary\bin\Debug\NetLibrary.pdb
-E:\SelfEducation\netchat\NetLibrary\obj\Debug\NetLibrary.csprojResolveAssemblyReference.cache
 E:\SelfEducation\netchat\NetLibrary\obj\Debug\NetLibrary.dll
 E:\SelfEducation\netchat\NetLibrary\obj\Debug\NetLibrary.pdb
+E:\SelfEducation\netchat\NetLibrary\obj\Debug\NetLibrary.csprojResolveAssemblyReference.cache

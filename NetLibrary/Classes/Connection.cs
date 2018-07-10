@@ -2,7 +2,7 @@
 using NetLibrary.Helpers;
 using NetLibrary.Models;
 using System.Threading.Tasks;
-using NetLibrary.States;
+using NetLibrary.Enums;
 
 namespace NetLibrary.Classes
 {
@@ -15,6 +15,12 @@ namespace NetLibrary.Classes
         /// </summary>
         public event ReceiveHandler OnReceivedMessage;
         public delegate void ReceiveHandler(Connection sender, ReceivedPacketEventsArgs e);
+
+        /// <summary>
+        /// Event which invoke when client send command
+        /// </summary>
+        public event ReceivedCommandHandler OnReceivedCommand;
+        public delegate void ReceivedCommandHandler(Connection sender, ReceivedCommandEventsArgs e);
 
         /// <summary>
         /// Event which invoke when client disconnected from server
@@ -30,11 +36,14 @@ namespace NetLibrary.Classes
                 {
                     var responseData = await NetHelper.GetDataAsync(User.TcpSocket);
 
-                    if (responseData.ActionState == ActionState.Disconnect)
+                    if (responseData.ActionState == ActionStates.Disconnect)
                         OnDisconnected(this, new ReceivedPacketEventsArgs(responseData));
 
-                    if(responseData.ActionState == ActionState.Message)
+                    if(responseData.ActionState == ActionStates.Message)
                         OnReceivedMessage(this, new ReceivedPacketEventsArgs(responseData));
+
+                    if (responseData.ActionState == ActionStates.Command)
+                        OnReceivedCommand(this, new ReceivedCommandEventsArgs(responseData.ClientInfo, responseData.Command));
                 }
             });
         }

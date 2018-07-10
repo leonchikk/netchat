@@ -1,5 +1,5 @@
 ﻿using NetLibrary.Classes;
-using NetLibrary.States;
+using NetLibrary.Enums;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -72,11 +72,11 @@ namespace NetLibrary.Models
             }
         }
 
-        private UserState _clientState;
+        private UserStates _clientState;
         /// <summary>
         /// Client state
         /// </summary>
-        public UserState ClientState
+        public UserStates ClientState
         {
             get { return _clientState; }
             set
