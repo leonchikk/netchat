@@ -1,8 +1,9 @@
 ﻿using NetLibrary.Classes;
 using NetLibrary.Enums;
 using NetLibrary.Models;
+using Newtonsoft.Json.Linq;
 
-namespace NetLibrary.Interfaces
+namespace Client.Engine.Interfaces
 {
     interface IClient
     {
@@ -24,8 +25,8 @@ namespace NetLibrary.Interfaces
         /// Send command to server
         /// </summary>
         /// <param name="commandType">Command type</param>
-        /// <param name="metaData">Command metadata</param>
-        void SendCommand(CommandTypes commandType, string metaData);
+        /// <param name="data">Command metadata</param>
+        void SendCommand(CommandTypes commandType, JObject data);
 
         /// <summary>
         /// Send request to remote/local server

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using NetLibrary.Interfaces;
 using NetLibrary.EventsArgs;
 using NetLibrary.Helpers;
 using NetLibrary.Enums;
 using NetLibrary.Models;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Client.Engine.Interfaces;
+using NetLibrary.Classes;
 
-namespace NetLibrary.Classes
+namespace Client.Engine.Classes
 {
     public class Client : IClient
     {
@@ -30,6 +32,12 @@ namespace NetLibrary.Classes
         /// </summary>
         public event ReceiveMessageHandler OnReceiveMessage;
         public delegate void ReceiveMessageHandler(object sender, ReceviedMessageEventsArgs e);
+
+        /// <summary>
+        /// Event which invoke when client received command results from server
+        /// </summary>
+        public event ReceiveCommandResultHandler OnReceiveCommandResult;
+        public delegate void ReceiveCommandResultHandler(object sender, ReceivedCommandResultsEventsArgs e);
 
         /// <summary>
         /// Event which invoke when new user disconnected from server
@@ -98,6 +106,9 @@ namespace NetLibrary.Classes
 
                 if (_receivedPacket?.ActionState == ActionStates.Message)
                     OnReceiveMessage(this, new ReceviedMessageEventsArgs(_receivedPacket.Conversation.Sender, _receivedPacket.Conversation.Message));
+
+                if (_receivedPacket?.ActionState == ActionStates.CommandResult)
+                    OnReceiveCommandResult(this, new ReceivedCommandResultsEventsArgs(_receivedPacket.Command.CommandType, _receivedPacket.Command.Data));
             }
             get
             {
@@ -200,13 +211,21 @@ namespace NetLibrary.Classes
         /// </summary>
         /// <param name="commandType">Command type</param>
         /// <param name="metaData">Command metadata</param>
-        public void SendCommand(CommandTypes commandType, string metaData)
+        public void SendCommand(CommandTypes commandType, JObject commandData)
         {
             CommandModel command = new CommandModel
             {
-                Command = metaData,
+                Data = commandData,
                 CommandType = commandType
             };
+
+            Packet commandPacket = new Packet
+            {
+                ActionState = ActionStates.Command,
+                Command = command
+            };
+
+            SendPacket(commandPacket);
         }
 
         public void Close()

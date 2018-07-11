@@ -1,5 +1,4 @@
-﻿using NetLibrary.Interfaces;
-using NetLibrary.Models;
+﻿using NetLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
@@ -8,8 +7,12 @@ using System.Net;
 using NetLibrary.EventsArgs;
 using NetLibrary.Enums;
 using NetLibrary.Helpers;
+using Server.Engine.Interfaces;
+using NetLibrary.Classes;
+using DBLibrary.Helpers;
+using Newtonsoft.Json.Linq;
 
-namespace NetLibrary.Classes
+namespace Server.Engine.Classes
 {
     public class Server : IServer
     {
@@ -51,7 +54,7 @@ namespace NetLibrary.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public void SendResponse(Packet responseData, List<Connection> targetClients, Connection initiator)
+        public void SendConversationResponse(Packet responseData, List<Connection> targetClients, Connection initiator)
         {
             targetClients?.ForEach(client => NetHelper.SendDataAsync(client?.User?.TcpSocket, responseData));
         }
@@ -61,7 +64,7 @@ namespace NetLibrary.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public void SendResponse(Packet responseData, Connection targetClient, Connection initiator)
+        public void SendConversationResponse(Packet responseData, Connection targetClient, Connection initiator)
         {
             if (targetClient == initiator)
                 return;
@@ -70,12 +73,26 @@ namespace NetLibrary.Classes
         }
 
         /// <summary>
+        /// Send command result to client
+        /// </summary>
+        public void SendCommandResult(Connection initiator, CommandModel commandResult)
+        {
+            Packet commandResultPacket = new Packet
+            {
+                ActionState = ActionStates.CommandResult,
+                Command = commandResult
+            };
+
+            NetHelper.SendDataAsync(initiator?.User?.TcpSocket, commandResultPacket);
+        }
+
+        /// <summary>
         /// Send response data to all users which connected to server
         /// </summary>
         /// <param name="responseData">Data which need transfer to all clients</param>
         public void BroadcastResponse (Packet responseData, Connection initiator)
         {
-            CurrentConnections.ForEach(connection => SendResponse(responseData, connection, initiator));
+            CurrentConnections.ForEach(connection => SendConversationResponse(responseData, connection, initiator));
         }
 
         /// <summary>
@@ -121,7 +138,27 @@ namespace NetLibrary.Classes
         /// </summary>
         private void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
         {
-           
+            CommandModel commandResult = null;
+            switch (e.Command.CommandType)
+            {
+
+                case CommandTypes.Authorization:
+
+                    if (!DBHelper.TryAuthorizationUser(e.Command.Data, out commandResult))
+                        return;
+
+                    SendCommandResult(sender, commandResult);
+                    break;
+
+                case CommandTypes.Registration:
+
+
+                    if (!DBHelper.TryRegisterUser(e.Command.Data, out commandResult))
+                        return;
+
+                    SendCommandResult(sender, commandResult);
+                    break;
+            }
         }
 
         /// <summary>

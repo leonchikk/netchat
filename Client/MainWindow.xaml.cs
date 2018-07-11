@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Windows;
-using static NetLibrary.Classes.Client;
 using NetLibrary.Models;
-using Net = NetLibrary.Classes;
+using Net = Client.Engine.Classes;
 using NetLibrary.Enums;
 using NetLibrary.EventsArgs;
+using static Client.Engine.Classes.Client;
 
 namespace Client
 {

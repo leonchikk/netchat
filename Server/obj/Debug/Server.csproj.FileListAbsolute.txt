@@ -16,3 +16,4 @@ E:\SelfEducation\netchat\Server\obj\Debug\Server.exe
 E:\SelfEducation\netchat\Server\obj\Debug\Server.pdb
 E:\SelfEducation\netchat\Server\bin\Debug\DBLibrary.dll
 E:\SelfEducation\netchat\Server\bin\Debug\DBLibrary.pdb
+E:\SelfEducation\netchat\Server\bin\Debug\Newtonsoft.Json.xml

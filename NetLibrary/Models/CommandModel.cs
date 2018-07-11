@@ -1,4 +1,5 @@
 ﻿using NetLibrary.Enums;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -30,19 +31,19 @@ namespace NetLibrary.Models
             }
         }
 
-        private string _command;
+        private JObject _data;
         /// <summary>
         /// Metadata of command which will send to server
         /// </summary>
-        public string Command
+        public JObject Data
         {
             get
             {
-                return _command;
+                return _data;
             }
             set
             {
-                _command = value;
+                _data = value;
                 OnPropertyChanged("Command");
             }
         }

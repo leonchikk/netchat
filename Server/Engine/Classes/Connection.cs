@@ -4,7 +4,7 @@ using NetLibrary.Models;
 using System.Threading.Tasks;
 using NetLibrary.Enums;
 
-namespace NetLibrary.Classes
+namespace Server.Engine.Classes
 {
     public class Connection
     {

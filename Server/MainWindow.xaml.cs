@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using Net = NetLibrary.Classes;
+using Engine = Server.Engine.Classes;
 
 namespace Server
 {
@@ -13,7 +13,7 @@ namespace Server
             InitializeComponent();
             string error;
 
-            Net.Server server = new Net.Server();
+            Engine.Classes.Server server = new Engine.Classes.Server();
             server.Start("127.0.0.1", 27015, out error);
         }
     }
