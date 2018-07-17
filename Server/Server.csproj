@@ -35,9 +35,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\Client\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\Client\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -66,7 +77,26 @@
     </Compile>
     <Compile Include="Engine\Classes\Connection.cs" />
     <Compile Include="Engine\Classes\Server.cs" />
+    <Compile Include="Engine\Helpers\DBHelper.cs" />
     <Compile Include="Engine\Interfaces\IServer.cs" />
+    <Compile Include="Engine\MessengerModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Engine\MessengerModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Engine\MessengerModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Engine\User.cs">
+      <DependentUpon>MessengerModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -90,6 +120,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
+    <EntityDeploy Include="Engine\MessengerModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MessengerModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Engine\MessengerModel.edmx.diagram">
+      <DependentUpon>MessengerModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -97,17 +136,26 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DBLibrary\DBLibrary.csproj">
-      <Project>{c489e53e-8b09-4936-9c6d-a59d006cd6c0}</Project>
-      <Name>DBLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NetLibrary\NetLibrary.csproj">
       <Project>{46bbdb88-e559-4309-84da-b4463dc0972b}</Project>
       <Name>NetLibrary</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Engine\MessengerModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MessengerModel.edmx</DependentUpon>
+      <LastGenOutput>MessengerModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Engine\MessengerModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MessengerModel.edmx</DependentUpon>
+      <LastGenOutput>MessengerModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

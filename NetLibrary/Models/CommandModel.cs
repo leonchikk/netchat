@@ -1,10 +1,12 @@
 ﻿using NetLibrary.Enums;
 using Newtonsoft.Json.Linq;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace NetLibrary.Models
 {
+    [Serializable]
     public class CommandModel:INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -12,6 +14,23 @@ namespace NetLibrary.Models
         public void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+
+        private string _token;
+        /// <summary>
+        /// Token for some commands (like get contacts, search and ect.)
+        /// </summary>
+        public string Token
+        {
+            get
+            {
+                return _token;
+            }
+            set
+            {
+                _token = value;
+                OnPropertyChanged("Token");
+            }
         }
 
         private CommandTypes _commandType;
@@ -31,11 +50,28 @@ namespace NetLibrary.Models
             }
         }
 
-        private JObject _data;
+        private StatusCodes _statusCode;
         /// <summary>
-        /// Metadata of command which will send to server
+        /// Code result exec command which will send to clent
         /// </summary>
-        public JObject Data
+        public StatusCodes StatusCode
+        {
+            get
+            {
+                return _statusCode;
+            }
+            set
+            {
+                _statusCode = value;
+                OnPropertyChanged("CommandResponse");
+            }
+        }
+
+        private string _data;
+        /// <summary>
+        /// Metadata of command which will send to server/client
+        /// </summary>
+        public string Data
         {
             get
             {

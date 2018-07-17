@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 E:\SelfEducation\netchat\Client\App.xaml
-11151548125
+31308982116
 
-71939026115
+9-132418192
 15-872941610
-MainWindow.xaml;
+Views\Main.xaml;Views\SignIn.xaml;Views\SignUp.xaml;
 
-False
+True
 

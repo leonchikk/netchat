@@ -66,7 +66,7 @@ namespace NetLibrary.Helpers
         /// </summary>
         /// <param name="tcpClient">Current client connection</param>
         /// <param name="data">Data which need transfer to server</param>
-        public static async void SendDataAsync(TcpClient tcpClient, Packet data)
+        public static async Task SendDataAsync(TcpClient tcpClient, Packet data)
         {
             var bytes = ToByteArray<Packet>(data);
             await tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length);

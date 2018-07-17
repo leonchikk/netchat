@@ -1,7 +1,9 @@
 ﻿using NetLibrary.Classes;
 using NetLibrary.Enums;
+using NetLibrary.EventsArgs;
 using NetLibrary.Models;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace Client.Engine.Interfaces
 {
@@ -12,26 +14,30 @@ namespace Client.Engine.Interfaces
         /// </summary>
         /// <param name="ip">Server Ip</param>
         /// <param name="port">Server port</param>
-        /// <param name="error">Error which can happed during connection</param>
-        void ConnectToServer(string ip, int port, ClientModel userInfo);
+        Task TryConnectToServerAsync(string ip, int port);
+
+        /// <summary>
+        /// Check new receives from server
+        /// </summary>
+        Task StartReceivingResponsesAsync();
 
         /// <summary>
         /// Send message to other users
         /// </summary>
         /// <param name="target">User is whom need transfer message</param>
-        void SendMessage(string message, ClientModel target);
+        Task SendMessageAsync(string message, ClientModel target);
 
         /// <summary>
-        /// Send command to server
+        /// Send command to server and get response
         /// </summary>
         /// <param name="commandType">Command type</param>
         /// <param name="data">Command metadata</param>
-        void SendCommand(CommandTypes commandType, JObject data);
+        Task SendCommandAsync(CommandTypes commandType, JObject data);
 
         /// <summary>
         /// Send request to remote/local server
         /// </summary>
-        void SendPacket(Packet requestData);
+        Task SendPacketAsync(Packet requestData);
 
         /// <summary>
         /// Close client

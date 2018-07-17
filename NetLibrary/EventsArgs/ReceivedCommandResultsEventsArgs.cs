@@ -7,10 +7,12 @@ namespace NetLibrary.EventsArgs
     {
         public CommandTypes CommandType { get; set; }
         public JObject CommandResult { get; set; }
+        public StatusCodes StatusCode { get; set; }
 
-        public ReceivedCommandResultsEventsArgs(CommandTypes commandType, JObject commandResult)
+        public ReceivedCommandResultsEventsArgs(CommandTypes commandType, StatusCodes statusCode, JObject commandResult)
         {
             CommandType = commandType;
+            StatusCode = statusCode;
             CommandResult = commandResult;
         }
     }

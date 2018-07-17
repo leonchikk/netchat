@@ -15,14 +15,14 @@ namespace Server.Engine.Interfaces
         /// <summary>
         /// Send command result to client
         /// </summary>
-        void SendCommandResult(Connection initiator, CommandModel commandResult);
+        Task SendCommandResultAsync(Connection initiator, CommandModel commandResult);
 
         /// <summary>
         /// Method which broadcast needed data to other client
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        void SendConversationResponse(Packet responseData, Connection targetClient, Connection initiator);
+        Task SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator);
 
         /// <summary>
         /// Send response data to all users which connected to server
@@ -32,6 +32,6 @@ namespace Server.Engine.Interfaces
 
         void CloseConnection(Connection initiator);
 
-        Task CheckNewConnection();
+        Task CheckNewConnectionAsync();
     }
 }

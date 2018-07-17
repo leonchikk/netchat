@@ -1,9 +1,0 @@
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\DBLibrary.dll
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\DBLibrary.pdb
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\NetLibrary.dll
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\NetLibrary.pdb
-E:\SelfEducation\netchat\DBLibrary\obj\Debug\DBLibrary.csprojResolveAssemblyReference.cache
-E:\SelfEducation\netchat\DBLibrary\obj\Debug\DBLibrary.dll
-E:\SelfEducation\netchat\DBLibrary\obj\Debug\DBLibrary.pdb
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\Newtonsoft.Json.dll
-E:\SelfEducation\netchat\DBLibrary\bin\Debug\Newtonsoft.Json.xml

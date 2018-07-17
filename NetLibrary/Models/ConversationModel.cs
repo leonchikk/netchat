@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace NetLibrary.Models
 {
+    [Serializable()]
     public class ConversationModel: INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

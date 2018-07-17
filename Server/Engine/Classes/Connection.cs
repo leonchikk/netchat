@@ -3,6 +3,7 @@ using NetLibrary.Helpers;
 using NetLibrary.Models;
 using System.Threading.Tasks;
 using NetLibrary.Enums;
+using System;
 
 namespace Server.Engine.Classes
 {
@@ -34,16 +35,23 @@ namespace Server.Engine.Classes
             {
                 while (true)
                 {
-                    var responseData = await NetHelper.GetDataAsync(User.TcpSocket);
+                    try
+                    {
+                        var responseData = await NetHelper.GetDataAsync(User.TcpSocket);
 
-                    if (responseData.ActionState == ActionStates.Disconnect)
-                        OnDisconnected(this, new ReceivedPacketEventsArgs(responseData));
+                        if (responseData.ActionState == ActionStates.Disconnect)
+                            OnDisconnected(this, new ReceivedPacketEventsArgs(responseData));
 
-                    if(responseData.ActionState == ActionStates.Message)
-                        OnReceivedMessage(this, new ReceivedPacketEventsArgs(responseData));
+                        if (responseData.ActionState == ActionStates.Message)
+                            OnReceivedMessage(this, new ReceivedPacketEventsArgs(responseData));
 
-                    if (responseData.ActionState == ActionStates.Command)
-                        OnReceivedCommand(this, new ReceivedCommandEventsArgs(responseData.ClientInfo, responseData.Command));
+                        if (responseData.ActionState == ActionStates.Command)
+                            OnReceivedCommand(this, new ReceivedCommandEventsArgs(responseData.ClientInfo, responseData.Command));
+                    }
+                    catch (Exception)
+                    {
+                        OnDisconnected(this, new ReceivedPacketEventsArgs(null));
+                    }
                 }
             });
         }

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\StatusCodes.cs" />
     <Compile Include="Enums\CommandTypes.cs" />
     <Compile Include="EventsArgs\ReceivedCommandEventsArgs.cs" />
     <Compile Include="EventsArgs\ReceivedCommandResultsEventsArgs.cs" />

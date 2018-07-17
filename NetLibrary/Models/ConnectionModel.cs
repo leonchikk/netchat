@@ -1,7 +1,9 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 
 namespace NetLibrary.Models
 {
+    [Serializable()]
     public class ConnectionModel: ClientModel
     {
         private TcpClient _tcpSocket;

@@ -9,8 +9,8 @@ using NetLibrary.Enums;
 using NetLibrary.Helpers;
 using Server.Engine.Interfaces;
 using NetLibrary.Classes;
-using DBLibrary.Helpers;
 using Newtonsoft.Json.Linq;
+using Server.Engine.Helpers;
 
 namespace Server.Engine.Classes
 {
@@ -37,7 +37,7 @@ namespace Server.Engine.Classes
                 {
                     while (true)
                     {
-                        await CheckNewConnection();
+                        await CheckNewConnectionAsync();
                     }
                 });
 
@@ -54,9 +54,9 @@ namespace Server.Engine.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public void SendConversationResponse(Packet responseData, List<Connection> targetClients, Connection initiator)
+        public void SendConversationResponseAsync(Packet responseData, List<Connection> targetClients, Connection initiator)
         {
-            targetClients?.ForEach(client => NetHelper.SendDataAsync(client?.User?.TcpSocket, responseData));
+            targetClients?.ForEach(async client => await NetHelper.SendDataAsync(client?.User?.TcpSocket, responseData));
         }
 
         /// <summary>
@@ -64,18 +64,18 @@ namespace Server.Engine.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public void SendConversationResponse(Packet responseData, Connection targetClient, Connection initiator)
+        public async Task SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator)
         {
             if (targetClient == initiator)
                 return;
 
-            NetHelper.SendDataAsync(targetClient?.User?.TcpSocket, responseData);
+            await NetHelper.SendDataAsync(targetClient?.User?.TcpSocket, responseData);
         }
 
         /// <summary>
         /// Send command result to client
         /// </summary>
-        public void SendCommandResult(Connection initiator, CommandModel commandResult)
+        public async Task SendCommandResultAsync(Connection initiator, CommandModel commandResult)
         {
             Packet commandResultPacket = new Packet
             {
@@ -83,7 +83,7 @@ namespace Server.Engine.Classes
                 Command = commandResult
             };
 
-            NetHelper.SendDataAsync(initiator?.User?.TcpSocket, commandResultPacket);
+            await NetHelper.SendDataAsync(initiator?.User?.TcpSocket, commandResultPacket);
         }
 
         /// <summary>
@@ -92,71 +92,55 @@ namespace Server.Engine.Classes
         /// <param name="responseData">Data which need transfer to all clients</param>
         public void BroadcastResponse (Packet responseData, Connection initiator)
         {
-            CurrentConnections.ForEach(connection => SendConversationResponse(responseData, connection, initiator));
+            CurrentConnections.ForEach(async connection => await SendConversationResponseAsync(responseData, connection, initiator));
         }
 
         /// <summary>
         /// Check new connections from other world
         /// </summary>
-        public async Task CheckNewConnection()
+        public async Task CheckNewConnectionAsync()
         {
             var newConnection = await _tcpListener.AcceptTcpClientAsync();
-            var response = await NetHelper.GetDataAsync(newConnection);
 
-            if (response.ActionState == ActionStates.Connect)
+            var connectionUser = new ConnectionModel
             {
-                var clientInfo = response.ClientInfo;
+                TcpSocket = newConnection
+            };
 
-                var connectionUser = new ConnectionModel
-                {
-                    ClientState = clientInfo.ClientState,
-                    Id = clientInfo.Id,
-                    Ip = clientInfo.Ip,
-                    Login = clientInfo.Login,
-                    Name = clientInfo.Name,
-                    TcpSocket = newConnection
-                };
+            var connection = new Connection
+            {
+                User = connectionUser
+            };
 
-                var connection = new Connection
-                {
-                    User = connectionUser
-                };
-                
-                CurrentConnections.Add(connection);
+            CurrentConnections.Add(connection);
 
-                connection.OnReceivedMessage += Connection_OnReceivedMessage; ;
-                connection.OnDisconnected += Connection_OnDisconnected;
-                connection.OnReceivedCommand += Connection_OnReceivedCommand;
+            connection.OnReceivedMessage += Connection_OnReceivedMessage; ;
+            connection.OnDisconnected += Connection_OnDisconnected;
+            connection.OnReceivedCommand += Connection_OnReceivedCommand;
 
-                connection.StartReceiveResponses();
-
-            }
+            connection.StartReceiveResponses();
         }
 
         /// <summary>
         ///  Event which invoke when server receive new command from other world
         /// </summary>
-        private void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
+        private async void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
         {
             CommandModel commandResult = null;
             switch (e.Command.CommandType)
             {
-
                 case CommandTypes.Authorization:
 
-                    if (!DBHelper.TryAuthorizationUser(e.Command.Data, out commandResult))
-                        return;
+                    DBHelper.TryAuthorizationUser(JObject.Parse(e.Command.Data), out commandResult);
+                    await SendCommandResultAsync(sender, commandResult);
 
-                    SendCommandResult(sender, commandResult);
                     break;
 
                 case CommandTypes.Registration:
 
+                    DBHelper.TryRegisterUser(JObject.Parse(e.Command.Data), out commandResult);
+                    await SendCommandResultAsync(sender, commandResult);
 
-                    if (!DBHelper.TryRegisterUser(e.Command.Data, out commandResult))
-                        return;
-
-                    SendCommandResult(sender, commandResult);
                     break;
             }
         }

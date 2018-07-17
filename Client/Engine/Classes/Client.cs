@@ -9,22 +9,27 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Client.Engine.Interfaces;
 using NetLibrary.Classes;
+using System.Timers;
 
 namespace Client.Engine.Classes
 {
     public class Client : IClient
     {
-        private object _lockTcpSocket;
-
+        #region Events
         /// <summary>
         /// Event which invoke when client connected to server
         /// </summary>
         public event ConnectionHandler OnConnected;
 
         /// <summary>
+        /// Event which invoke when establish connection to server
+        /// </summary>
+        public event ConnectionHandler OnEstablishConnection;
+
+        /// <summary>
         /// Event which invoke when client disconnected from server
         /// </summary>
-        public event ConnectionHandler OnDisconnected;
+        public event ConnectionHandler OnClosedConnection;
         public delegate void ConnectionHandler(object sender, EventArgs e);
         
         /// <summary>
@@ -34,7 +39,7 @@ namespace Client.Engine.Classes
         public delegate void ReceiveMessageHandler(object sender, ReceviedMessageEventsArgs e);
 
         /// <summary>
-        /// Event which invoke when client received command results from server
+        /// Event which invoke when client received message from server
         /// </summary>
         public event ReceiveCommandResultHandler OnReceiveCommandResult;
         public delegate void ReceiveCommandResultHandler(object sender, ReceivedCommandResultsEventsArgs e);
@@ -49,6 +54,12 @@ namespace Client.Engine.Classes
         /// </summary>
         public event ReceiveResponseHandler OnUserJoin;
         public delegate void ReceiveResponseHandler(object sender, ReceivedPacketEventsArgs e);
+        #endregion
+
+        #region Properties
+        private object _lockTcpSocket;
+
+        private Timer _connectionTimer;
 
         private ClientModel _currentUser;
         /// <summary>
@@ -98,83 +109,88 @@ namespace Client.Engine.Classes
             {
                 _receivedPacket = value;
 
-                if(_receivedPacket?.ActionState == ActionStates.Connect)
+                if(_receivedPacket?.ActionState == ActionStates.Connect && OnUserJoin != null)
                     OnUserJoin(this, new ReceivedPacketEventsArgs(_receivedPacket));
 
-                if (_receivedPacket?.ActionState == ActionStates.Disconnect)
+                if (_receivedPacket?.ActionState == ActionStates.Disconnect && OnUserDisconnected != null)
                     OnUserDisconnected(this, new ReceivedPacketEventsArgs(_receivedPacket));
 
-                if (_receivedPacket?.ActionState == ActionStates.Message)
+                if (_receivedPacket?.ActionState == ActionStates.Message && OnReceiveMessage != null)
                     OnReceiveMessage(this, new ReceviedMessageEventsArgs(_receivedPacket.Conversation.Sender, _receivedPacket.Conversation.Message));
 
-                if (_receivedPacket?.ActionState == ActionStates.CommandResult)
-                    OnReceiveCommandResult(this, new ReceivedCommandResultsEventsArgs(_receivedPacket.Command.CommandType, _receivedPacket.Command.Data));
+                if (_receivedPacket?.ActionState == ActionStates.CommandResult && OnReceiveCommandResult != null)
+                    OnReceiveCommandResult(this, new ReceivedCommandResultsEventsArgs(_receivedPacket.Command.CommandType, _receivedPacket.Command.StatusCode, JObject.Parse(_receivedPacket.Command.Data)));
+
             }
             get
             {
                return _receivedPacket;
             }
         }
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Connect to remote/local server
         /// </summary>
-        public void ConnectToServer(string ip, int port, ClientModel userInfo)
+        public async Task TryConnectToServerAsync(string ip, int port)
         {
             try
             {
-                _tcpSocket = new TcpClient(ip, port);
+                _tcpSocket = new TcpClient();
+                await _tcpSocket.ConnectAsync(ip, port);
 
-                CurrentUser = userInfo;
-                OnConnected(this, new EventArgs());
-
-                //Check new receives from server
-                Task.Factory.StartNew(async () =>
-                {
-                    while (true)
-                    {
-                        ReceivedPacket = await ReceiveRequestAsync();
-                    }
-                });
+                if (OnConnected != null)
+                    OnConnected(this, new EventArgs());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                OnDisconnected(this, new EventArgs());
+                throw new Exception("Could not connect to server");
             }
         }
 
         /// <summary>
-        /// Receive response data from server
+        /// Check new receives from server
         /// </summary>
-        private async Task<Packet> ReceiveRequestAsync()
+        public async Task StartReceivingResponsesAsync()
         {
             try
             {
-                return await NetHelper.GetDataAsync(_tcpSocket);
+                while (true)
+                {
+                    ReceivedPacket = await ReceiveRequestAsync();
+                }
             }
             catch(Exception)
             {
-                return null;
+                if (OnClosedConnection != null)
+                    OnClosedConnection(this, new EventArgs());
+
+                throw new Exception("Server has refused connection");
             }
         }
 
         /// <summary>
         /// Send request to remote/local server
         /// </summary>
-        public void SendPacket(Packet requestData)
+        public async Task SendPacketAsync(Packet requestData)
         {
             try
             {
-                Task.Run(() => NetHelper.SendDataAsync(_tcpSocket, requestData));
+                await NetHelper.SendDataAsync(_tcpSocket, requestData);
             }
-            catch (Exception){ }
+            catch (Exception)
+            {
+
+            }
         }
 
         /// <summary>
         /// Send message to other user
         /// </summary>
         /// <param name="target">User is whom need transfer message</param>
-        public void SendMessage(string message, ClientModel target)
+        public async Task SendMessageAsync(string message, ClientModel target)
         {
             Packet messagePacket = new Packet
             {
@@ -188,34 +204,19 @@ namespace Client.Engine.Classes
                 }
             };
 
-            SendPacket(messagePacket);
+            await SendPacketAsync(messagePacket);
         }
 
         /// <summary>
-        /// Send user info to server when he connected
-        /// </summary>
-        private void SendConnectionInfo(ClientModel clientInfo)
-        {
-            Packet info = new Packet
-            {
-                ActionState = ActionStates.Connect,
-                ClientInfo = clientInfo
-            };
-
-            SendPacket(info);
-
-        }
-
-        /// <summary>
-        /// Send command to server
+        /// Send command to server and get response
         /// </summary>
         /// <param name="commandType">Command type</param>
         /// <param name="metaData">Command metadata</param>
-        public void SendCommand(CommandTypes commandType, JObject commandData)
+        public async Task SendCommandAsync(CommandTypes commandType, JObject commandData)
         {
             CommandModel command = new CommandModel
             {
-                Data = commandData,
+                Data = commandData.ToString(),
                 CommandType = commandType
             };
 
@@ -225,12 +226,29 @@ namespace Client.Engine.Classes
                 Command = command
             };
 
-            SendPacket(commandPacket);
+            await SendPacketAsync(commandPacket);
         }
 
         public void Close()
         {
             TcpSocket?.Close();
         }
+
+        /// <summary>
+        /// Receive response data from server
+        /// </summary>
+        private async Task<Packet> ReceiveRequestAsync()
+        {
+            try
+            {
+                return await NetHelper.GetDataAsync(_tcpSocket);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #endregion
     }
 }
