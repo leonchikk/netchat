@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using Client.Engine.Interfaces;
 using NetLibrary.Classes;
 using System.Timers;
+using System.Threading;
 
 namespace Client.Engine.Classes
 {
@@ -59,7 +60,8 @@ namespace Client.Engine.Classes
         #region Properties
         private object _lockTcpSocket;
 
-        private Timer _connectionTimer;
+        private CancellationTokenSource _cancelRecevingPacketSource = new CancellationTokenSource();
+        private CancellationToken _cancelRecevingPacketToken = CancellationToken.None;
 
         private ClientModel _currentUser;
         /// <summary>
@@ -131,6 +133,11 @@ namespace Client.Engine.Classes
 
         #region Methods
 
+        public Client()
+        {
+            _cancelRecevingPacketToken = _cancelRecevingPacketSource.Token;
+        }
+
         /// <summary>
         /// Connect to remote/local server
         /// </summary>
@@ -159,16 +166,30 @@ namespace Client.Engine.Classes
             {
                 while (true)
                 {
+                    if (_cancelRecevingPacketToken.IsCancellationRequested)
+                        break;
+
                     ReceivedPacket = await ReceiveRequestAsync();
                 }
             }
-            catch(Exception)
+            catch(Exception ex)
             {
                 if (OnClosedConnection != null)
                     OnClosedConnection(this, new EventArgs());
 
-                throw new Exception("Server has refused connection");
+                throw new Exception(ex.Message); //"Server has refused connection");
             }
+        }
+
+        /// <summary>
+        /// Stop receiving incoming packets from server
+        /// </summary>
+        public void StopReceivingResponses()
+        {
+            _cancelRecevingPacketSource?.Cancel();
+            _cancelRecevingPacketSource?.Dispose();
+            _cancelRecevingPacketSource = new CancellationTokenSource();
+            _cancelRecevingPacketToken = _cancelRecevingPacketSource.Token;
         }
 
         /// <summary>
@@ -176,14 +197,7 @@ namespace Client.Engine.Classes
         /// </summary>
         public async Task SendPacketAsync(Packet requestData)
         {
-            try
-            {
-                await NetHelper.SendDataAsync(_tcpSocket, requestData);
-            }
-            catch (Exception)
-            {
-
-            }
+            await NetHelper.SendDataAsync(_tcpSocket, requestData);
         }
 
         /// <summary>

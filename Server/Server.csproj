@@ -141,7 +141,6 @@
       <Name>NetLibrary</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="Engine\MessengerModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

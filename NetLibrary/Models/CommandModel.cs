@@ -70,6 +70,7 @@ namespace NetLibrary.Models
         private string _data;
         /// <summary>
         /// Metadata of command which will send to server/client
+        /// Important: can not be null
         /// </summary>
         public string Data
         {
