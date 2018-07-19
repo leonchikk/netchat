@@ -5,6 +5,7 @@ namespace NetLibrary.Enums
     {
         Offile,
         Online,
-        Suspended
+        Suspended,
+        AFK
     }
 }

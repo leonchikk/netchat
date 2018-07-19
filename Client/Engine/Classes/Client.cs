@@ -111,7 +111,7 @@ namespace Client.Engine.Classes
             {
                 _receivedPacket = value;
 
-                if(_receivedPacket?.ActionState == ActionStates.Connect && OnUserJoin != null)
+                if(_receivedPacket?.ActionState == ActionStates.Join && OnUserJoin != null)
                     OnUserJoin(this, new ReceivedPacketEventsArgs(_receivedPacket));
 
                 if (_receivedPacket?.ActionState == ActionStates.Disconnect && OnUserDisconnected != null)

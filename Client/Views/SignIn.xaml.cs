@@ -37,6 +37,8 @@ namespace Client.Views
                 ErrorField.Content = e.CommandResult["Message"].ToString();
                 return;
             }
+        
+            CurrentConnection.ClientToken = e.CommandResult["Token"].ToString();
 
             SignInResult = SignInResults.Success;
             Close();
@@ -63,7 +65,7 @@ namespace Client.Views
 
             var authData = new JObject
             {
-                {"Login", LoginField.Text },
+                {"Email", EmailField.Text },
                 {"Password", PasswordField.Password }
             };
 

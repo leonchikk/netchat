@@ -5,8 +5,8 @@
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
-    <Property Name="Login" Type="nvarchar" MaxLength="120" Nullable="false" />
-    <Property Name="Name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="120" Nullable="false" />
+    <Property Name="Email" Type="nvarchar" MaxLength="128" Nullable="false" />
     <Property Name="Password" Type="nvarchar" MaxLength="128" Nullable="false" />
   </EntityType>
   <EntityContainer Name="MessangerModelStoreContainer">

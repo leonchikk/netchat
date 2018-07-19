@@ -58,17 +58,17 @@ namespace NetLibrary.Models
             }
         }
 
-        private string _login;
+        private string _email;
         /// <summary>
-        /// Client login
+        /// Client email
         /// </summary>
-        public string Login
+        public string Email
         {
-            get { return _login; }
+            get { return _email; }
             set
             {
-                _login = value;
-                OnPropertyChanged("Login");
+                _email = value;
+                OnPropertyChanged("Email");
             }
         }
 

@@ -45,21 +45,6 @@
                     Foreground="#FF464242"
                     FontSize="18"
                     Margin="0 0 10 0"
-                    Content="Login:"/>
-                <TextBox 
-                    VerticalContentAlignment="Center"
-                    Margin="0 3 0 3"
-                    Width="250" 
-                    x:Name="LoginField" />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                        Margin="0 20 50 0">
-                <Label 
-                    VerticalContentAlignment="Top"
-                    Foreground="#FF464242"
-                    FontSize="18"
-                    Margin="0 0 10 0"
                     Content="Name:"/>
                 <TextBox 
                     VerticalContentAlignment="Center"
@@ -68,6 +53,21 @@
                     x:Name="NameField" />
             </StackPanel>
             
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        Margin="0 20 50 0">
+                <Label 
+                    VerticalContentAlignment="Top"
+                    Foreground="#FF464242"
+                    FontSize="18"
+                    Margin="0 0 10 0"
+                    Content="Email:"/>
+                <TextBox 
+                    VerticalContentAlignment="Center"
+                    Margin="0 3 0 3"
+                    Width="250" 
+                    x:Name="EmailField" />
+            </StackPanel>
+
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Right"
                         Margin="0 20 50 0">

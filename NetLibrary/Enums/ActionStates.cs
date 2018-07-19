@@ -2,7 +2,7 @@
 {
     public enum ActionStates
     {
-        Connect,
+        Join,       //When user entered to app
         Disconnect,
         Message,
         Command,

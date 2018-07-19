@@ -142,6 +142,12 @@ namespace Server.Engine.Classes
                     await SendCommandResultAsync(sender, commandResult);
 
                     break;
+
+                case CommandTypes.UserInfo:
+                    
+                    await SendCommandResultAsync(sender, DBHelper.GetUserInfo(JObject.Parse(e.Command.Data)));
+
+                    break;
             }
         }
 

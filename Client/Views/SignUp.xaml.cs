@@ -36,8 +36,8 @@ namespace Client.Views
                 {
                     ErrorField.Visibility = Visibility.Visible;
                     ErrorField.Content = e.CommandResult["Message"].ToString();
-                    return;
                 });
+                return;
             }
 
             MessageBox.Show("Registration completed successfully", "Swype", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -67,7 +67,7 @@ namespace Client.Views
 
             var regData = new JObject
             {
-                {"Login", LoginField.Text },
+                {"Email", EmailField.Text },
                 {"Name", NameField.Text },
                 {"Password", PasswordField.Password }
             };

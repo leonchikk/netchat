@@ -3,7 +3,7 @@ namespace NetLibrary.Enums
 {
     public enum CommandTypes
     {
-        GetContacts,
+        UserInfo,
         Authorization,
         Registration,
     }
