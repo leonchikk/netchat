@@ -148,6 +148,11 @@ namespace Server.Engine.Classes
                     await SendCommandResultAsync(sender, DBHelper.GetUserInfo(JObject.Parse(e.Command.Data)));
 
                     break;
+
+                case CommandTypes.Search:
+
+                    await SendCommandResultAsync(sender, DBHelper.GetSearchResults(JObject.Parse(e.Command.Data)));
+                    break;
             }
         }
 

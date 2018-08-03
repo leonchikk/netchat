@@ -8,8 +8,64 @@
     <Property Name="Password" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
     <Property Name="Email" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
     <Property Name="Name" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="FirstContact" Relationship="MessangerModel.FK_Contacts_Users" FromRole="User" ToRole="Contact" />
+    <NavigationProperty Name="SecondContact" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="User" ToRole="Contact" />
   </EntityType>
   <EntityContainer Name="MessangerContext" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="Users" EntityType="Self.User" />
+    <EntitySet Name="Contacts" EntityType="MessangerModel.Contact" />
+    <EntitySet Name="sysdiagrams" EntityType="MessangerModel.sysdiagram" />
+    <AssociationSet Name="FK_Contacts_Users" Association="MessangerModel.FK_Contacts_Users">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Contact" EntitySet="Contacts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Contacts_Users1" Association="MessangerModel.FK_Contacts_Users1">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Contact" EntitySet="Contacts" />
+    </AssociationSet>
   </EntityContainer>
+  <EntityType Name="Contact">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Guid" Nullable="false" />
+    <Property Name="User1" Type="Guid" Nullable="false" />
+    <Property Name="User2" Type="Guid" Nullable="false" />
+    <NavigationProperty Name="FirstUser" Relationship="MessangerModel.FK_Contacts_Users" FromRole="Contact" ToRole="User" />
+    <NavigationProperty Name="SecondUser" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="Contact" ToRole="User" />
+  </EntityType>
+  <EntityType Name="sysdiagram">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+    <Property Name="principal_id" Type="Int32" Nullable="false" />
+    <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="version" Type="Int32" />
+    <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+  </EntityType>
+  <Association Name="FK_Contacts_Users">
+    <End Type="MessangerModel.User" Role="User" Multiplicity="1" />
+    <End Type="MessangerModel.Contact" Role="Contact" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Contact">
+        <PropertyRef Name="User1" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Contacts_Users1">
+    <End Type="MessangerModel.User" Role="User" Multiplicity="1" />
+    <End Type="MessangerModel.Contact" Role="Contact" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Contact">
+        <PropertyRef Name="User2" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema>

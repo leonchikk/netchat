@@ -6,6 +6,10 @@
     <edmx:Diagrams>
       <Diagram DiagramId="8f4f738134af43fcada470bb740bde28" Name="Diagram1">
         <EntityTypeShape EntityType="MessangerModel.User" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MessangerModel.Contact" Width="1.5" PointX="3.5" PointY="0.875" />
+        <EntityTypeShape EntityType="MessangerModel.sysdiagram" Width="1.5" PointX="0.875" PointY="3.75" />
+        <AssociationConnector Association="MessangerModel.FK_Contacts_Users" />
+        <AssociationConnector Association="MessangerModel.FK_Contacts_Users1" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
