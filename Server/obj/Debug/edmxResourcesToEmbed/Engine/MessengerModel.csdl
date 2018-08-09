@@ -10,6 +10,7 @@
     <Property Name="Name" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="FirstContact" Relationship="MessangerModel.FK_Contacts_Users" FromRole="User" ToRole="Contact" />
     <NavigationProperty Name="SecondContact" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="User" ToRole="Contact" />
+    <NavigationProperty Name="Contact" Relationship="MessangerModel.FK_Contacts_Users2" FromRole="User" ToRole="Contact" />
   </EntityType>
   <EntityContainer Name="MessangerContext" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="Users" EntityType="Self.User" />
@@ -23,6 +24,40 @@
       <End Role="User" EntitySet="Users" />
       <End Role="Contact" EntitySet="Contacts" />
     </AssociationSet>
+    <FunctionImport Name="sp_alterdiagram">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+      <Parameter Name="version" Mode="In" Type="Int32" />
+      <Parameter Name="definition" Mode="In" Type="Binary" />
+    </FunctionImport>
+    <FunctionImport Name="sp_creatediagram">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+      <Parameter Name="version" Mode="In" Type="Int32" />
+      <Parameter Name="definition" Mode="In" Type="Binary" />
+    </FunctionImport>
+    <FunctionImport Name="sp_dropdiagram">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="sp_helpdiagramdefinition" ReturnType="Collection(MessangerModel.sp_helpdiagramdefinition_Result)">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="sp_helpdiagrams" ReturnType="Collection(MessangerModel.sp_helpdiagrams_Result)">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="sp_renamediagram">
+      <Parameter Name="diagramname" Mode="In" Type="String" />
+      <Parameter Name="owner_id" Mode="In" Type="Int32" />
+      <Parameter Name="new_diagramname" Mode="In" Type="String" />
+    </FunctionImport>
+    <FunctionImport Name="sp_upgraddiagrams" />
+    <AssociationSet Name="FK_Contacts_Users2" Association="MessangerModel.FK_Contacts_Users2">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Contact" EntitySet="Contacts" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="Contact">
     <Key>
@@ -33,6 +68,8 @@
     <Property Name="User2" Type="Guid" Nullable="false" />
     <NavigationProperty Name="FirstUser" Relationship="MessangerModel.FK_Contacts_Users" FromRole="Contact" ToRole="User" />
     <NavigationProperty Name="SecondUser" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="Contact" ToRole="User" />
+    <Property Name="IsApproved" Type="Boolean" Nullable="false" />
+    <NavigationProperty Name="User" Relationship="MessangerModel.FK_Contacts_Users2" FromRole="Contact" ToRole="User" />
   </EntityType>
   <EntityType Name="sysdiagram">
     <Key>
@@ -65,6 +102,29 @@
       </Principal>
       <Dependent Role="Contact">
         <PropertyRef Name="User2" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <ComplexType Name="sp_helpdiagramdefinition_Result">
+    <Property Type="Int32" Name="version" Nullable="true" />
+    <Property Type="Binary" Name="definition" Nullable="true" />
+  </ComplexType>
+  <ComplexType Name="sp_helpdiagrams_Result">
+    <Property Type="String" Name="Database" Nullable="true" MaxLength="128" />
+    <Property Type="String" Name="Name" Nullable="false" MaxLength="128" />
+    <Property Type="Int32" Name="ID" Nullable="false" />
+    <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
+    <Property Type="Int32" Name="OwnerID" Nullable="false" />
+  </ComplexType>
+  <Association Name="FK_Contacts_Users2">
+    <End Type="MessangerModel.User" Role="User" Multiplicity="1" />
+    <End Type="MessangerModel.Contact" Role="Contact" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Contact">
+        <PropertyRef Name="Id" />
       </Dependent>
     </ReferentialConstraint>
   </Association>

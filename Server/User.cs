@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Server.Engine
+namespace Server
 {
     using System;
     using System.Collections.Generic;
@@ -17,18 +17,18 @@ namespace Server.Engine
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
-            this.FirstContact = new HashSet<Contact>();
-            this.SecondContact = new HashSet<Contact>();
+            this.Contacts1 = new HashSet<Contact>();
+            this.Contacts2 = new HashSet<Contact>();
         }
     
         public System.Guid Id { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
         public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Contact> FirstContact { get; set; }
+        public virtual ICollection<Contact> Contacts1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Contact> SecondContact { get; set; }
+        public virtual ICollection<Contact> Contacts2 { get; set; }
     }
 }

@@ -7,17 +7,19 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Server.Engine
+namespace Server
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class sysdiagram
+    public partial class Contact
     {
-        public string name { get; set; }
-        public int principal_id { get; set; }
-        public int diagram_id { get; set; }
-        public Nullable<int> version { get; set; }
-        public byte[] definition { get; set; }
+        public System.Guid Id { get; set; }
+        public System.Guid User1 { get; set; }
+        public System.Guid User2 { get; set; }
+        public bool IsApproved { get; set; }
+    
+        public virtual User FirstUser { get; set; }
+        public virtual User SecondUser { get; set; }
     }
 }

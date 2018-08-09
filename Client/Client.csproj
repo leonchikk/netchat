@@ -59,7 +59,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\Converters.cs" />
+    <Compile Include="Engine\Models\CurrentAppState.cs" />
     <Compile Include="Engine\Models\CurrentConnection.cs" />
+    <Compile Include="Engine\Models\CurrentConversation.cs" />
     <Compile Include="Views\SignIn.xaml.cs">
       <DependentUpon>SignIn.xaml</DependentUpon>
     </Compile>
@@ -122,6 +125,9 @@
       <Project>{46bbdb88-e559-4309-84da-b4463dc0972b}</Project>
       <Name>NetLibrary</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controls\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

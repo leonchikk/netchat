@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="MessangerContext" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Contact">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Guid" Nullable="false" />
+    <Property Name="User1" Type="Guid" Nullable="false" />
+    <Property Name="User2" Type="Guid" Nullable="false" />
+    <Property Name="IsApproved" Type="Boolean" Nullable="false" />
+    <NavigationProperty Name="FirstUser" Relationship="MessangerContext.FK_Contacts_Users" FromRole="Contact" ToRole="User" />
+    <NavigationProperty Name="SecondUser" Relationship="MessangerContext.FK_Contacts_Users1" FromRole="Contact" ToRole="User" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Guid" Nullable="false" />
+    <Property Name="Name" Type="String" MaxLength="120" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Email" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Password" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+    <NavigationProperty Name="Contacts1" Relationship="MessangerContext.FK_Contacts_Users" FromRole="User" ToRole="Contact" />
+    <NavigationProperty Name="Contacts2" Relationship="MessangerContext.FK_Contacts_Users1" FromRole="User" ToRole="Contact" />
+  </EntityType>
+  <EntityContainer Name="MessangerModel" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Contacts" EntityType="Self.Contact" />
+    <EntitySet Name="Users" EntityType="Self.User" />
+    <AssociationSet Name="FK_Contacts_Users" Association="MessangerContext.FK_Contacts_Users">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Contact" EntitySet="Contacts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Contacts_Users1" Association="MessangerContext.FK_Contacts_Users1">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Contact" EntitySet="Contacts" />
+    </AssociationSet>
+  </EntityContainer>
+  <Association Name="FK_Contacts_Users">
+    <End Type="MessangerContext.User" Role="User" Multiplicity="1" />
+    <End Type="MessangerContext.Contact" Role="Contact" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Contact">
+        <PropertyRef Name="User1" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Contacts_Users1">
+    <End Type="MessangerContext.User" Role="User" Multiplicity="1" />
+    <End Type="MessangerContext.Contact" Role="Contact" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Contact">
+        <PropertyRef Name="User2" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

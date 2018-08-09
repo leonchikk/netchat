@@ -7,16 +7,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Server.Engine
+namespace Server
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class MessangerContext : DbContext
+    public partial class MessangerModel : DbContext
     {
-        public MessangerContext()
-            : base("name=MessangerContext")
+        public MessangerModel()
+            : base("name=MessangerModel")
         {
         }
     
@@ -25,8 +25,7 @@ namespace Server.Engine
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
-        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
+        public virtual DbSet<User> Users { get; set; }
     }
 }

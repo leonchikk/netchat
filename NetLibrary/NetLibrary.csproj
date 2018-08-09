@@ -44,11 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\NotificationTypes.cs" />
     <Compile Include="Enums\StatusCodes.cs" />
     <Compile Include="Enums\CommandTypes.cs" />
     <Compile Include="EventsArgs\ReceivedCommandEventsArgs.cs" />
     <Compile Include="EventsArgs\ReceivedCommandResultsEventsArgs.cs" />
     <Compile Include="EventsArgs\ReceivedPacketEventsArgs.cs" />
+    <Compile Include="EventsArgs\ReceiveNotificationEventsArgs.cs" />
     <Compile Include="EventsArgs\ReceviedMessageEventsArgs.cs" />
     <Compile Include="Models\CommandModel.cs" />
     <Compile Include="Models\ConversationModel.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="Enums\UserStates.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Models\ConnectionModel.cs" />
+    <Compile Include="Models\NotificationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

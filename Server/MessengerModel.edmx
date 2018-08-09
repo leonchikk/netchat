@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="MessangerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="MessangerContext.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Contacts">
           <Key>
             <PropertyRef Name="Id" />
@@ -12,16 +12,7 @@
           <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
           <Property Name="User1" Type="uniqueidentifier" Nullable="false" />
           <Property Name="User2" Type="uniqueidentifier" Nullable="false" />
-        </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="principal_id" Type="int" Nullable="false" />
-          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="version" Type="int" />
-          <Property Name="definition" Type="varbinary(max)" />
+          <Property Name="IsApproved" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -56,9 +47,8 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="MessangerModelStoreContainer">
+        <EntityContainer Name="MessangerContextStoreContainer">
           <EntitySet Name="Contacts" EntityType="Self.Contacts" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Contacts_Users" Association="Self.FK_Contacts_Users">
             <End Role="Users" EntitySet="Users" />
@@ -72,31 +62,7 @@
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="MessangerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="User">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Guid" Nullable="false" />
-          <Property Name="Password" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="FirstContact" Relationship="MessangerModel.FK_Contacts_Users" FromRole="User" ToRole="Contact" />
-          <NavigationProperty Name="SecondContact" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="User" ToRole="Contact" />
-        </EntityType>
-        <EntityContainer Name="MessangerContext" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Users" EntityType="Self.User" />
-          <EntitySet Name="Contacts" EntityType="MessangerModel.Contact" />
-          <EntitySet Name="sysdiagrams" EntityType="MessangerModel.sysdiagram" />
-          <AssociationSet Name="FK_Contacts_Users" Association="MessangerModel.FK_Contacts_Users">
-            <End Role="User" EntitySet="Users" />
-            <End Role="Contact" EntitySet="Contacts" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Contacts_Users1" Association="MessangerModel.FK_Contacts_Users1">
-            <End Role="User" EntitySet="Users" />
-            <End Role="Contact" EntitySet="Contacts" />
-          </AssociationSet>
-        </EntityContainer>
+      <Schema Namespace="MessangerContext" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="Contact">
           <Key>
             <PropertyRef Name="Id" />
@@ -104,22 +70,36 @@
           <Property Name="Id" Type="Guid" Nullable="false" />
           <Property Name="User1" Type="Guid" Nullable="false" />
           <Property Name="User2" Type="Guid" Nullable="false" />
-          <NavigationProperty Name="FirstUser" Relationship="MessangerModel.FK_Contacts_Users" FromRole="Contact" ToRole="User" />
-          <NavigationProperty Name="SecondUser" Relationship="MessangerModel.FK_Contacts_Users1" FromRole="Contact" ToRole="User" />
+          <Property Name="IsApproved" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="FirstUser" Relationship="MessangerContext.FK_Contacts_Users" FromRole="Contact" ToRole="User" />
+          <NavigationProperty Name="SecondUser" Relationship="MessangerContext.FK_Contacts_Users1" FromRole="Contact" ToRole="User" />
         </EntityType>
-        <EntityType Name="sysdiagram">
+        <EntityType Name="User">
           <Key>
-            <PropertyRef Name="diagram_id" />
+            <PropertyRef Name="Id" />
           </Key>
-          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="principal_id" Type="Int32" Nullable="false" />
-          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="version" Type="Int32" />
-          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="120" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Contacts1" Relationship="MessangerContext.FK_Contacts_Users" FromRole="User" ToRole="Contact" />
+          <NavigationProperty Name="Contacts2" Relationship="MessangerContext.FK_Contacts_Users1" FromRole="User" ToRole="Contact" />
         </EntityType>
+        <EntityContainer Name="MessangerModel" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Contacts" EntityType="Self.Contact" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Contacts_Users" Association="MessangerContext.FK_Contacts_Users">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Contact" EntitySet="Contacts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Contacts_Users1" Association="MessangerContext.FK_Contacts_Users1">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Contact" EntitySet="Contacts" />
+          </AssociationSet>
+        </EntityContainer>
         <Association Name="FK_Contacts_Users">
-          <End Type="MessangerModel.User" Role="User" Multiplicity="1" />
-          <End Type="MessangerModel.Contact" Role="Contact" Multiplicity="*" />
+          <End Type="MessangerContext.User" Role="User" Multiplicity="1" />
+          <End Type="MessangerContext.Contact" Role="Contact" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="Id" />
@@ -130,8 +110,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Contacts_Users1">
-          <End Type="MessangerModel.User" Role="User" Multiplicity="1" />
-          <End Type="MessangerModel.Contact" Role="Contact" Multiplicity="*" />
+          <End Type="MessangerContext.User" Role="User" Multiplicity="1" />
+          <End Type="MessangerContext.Contact" Role="Contact" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="Id" />
@@ -146,34 +126,24 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="MessangerModelStoreContainer" CdmEntityContainer="MessangerContext">
+        <EntityContainerMapping StorageEntityContainer="MessangerContextStoreContainer" CdmEntityContainer="MessangerModel">
+          <EntitySetMapping Name="Contacts">
+            <EntityTypeMapping TypeName="MessangerContext.Contact">
+              <MappingFragment StoreEntitySet="Contacts">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="User1" ColumnName="User1" />
+                <ScalarProperty Name="User2" ColumnName="User2" />
+                <ScalarProperty Name="IsApproved" ColumnName="IsApproved" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Users">
-            <EntityTypeMapping TypeName="MessangerModel.User">
+            <EntityTypeMapping TypeName="MessangerContext.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Contacts">
-            <EntityTypeMapping TypeName="MessangerModel.Contact">
-              <MappingFragment StoreEntitySet="Contacts">
-                <ScalarProperty Name="User2" ColumnName="User2" />
-                <ScalarProperty Name="User1" ColumnName="User1" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="MessangerModel.sysdiagram">
-              <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="definition" ColumnName="definition" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

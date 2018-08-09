@@ -2,10 +2,11 @@
 {
     public enum ActionStates
     {
-        Join,       //When user entered to app
+        Join,       
         Disconnect,
         Message,
         Command,
-        CommandResult
+        CommandResult,
+        Notification
     }
 }

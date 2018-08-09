@@ -9,6 +9,7 @@ namespace NetLibrary.Models
     [Serializable()]
     public class ClientModel : INotifyPropertyChanged
     {
+        [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void OnPropertyChanged([CallerMemberName]string prop = "")
@@ -27,20 +28,6 @@ namespace NetLibrary.Models
             {
                 _id = value;
                 OnPropertyChanged("Id");
-            }
-        }
-
-        private string _ip;
-        /// <summary>
-        /// Client Ip
-        /// </summary>
-        public string Ip
-        {
-            get { return _ip;}
-            set
-            {
-                _ip = value;
-                OnPropertyChanged("Ip");
             }
         }
 
@@ -72,6 +59,48 @@ namespace NetLibrary.Models
             }
         }
 
+        private bool _isFriend = false;
+        /// <summary>
+        /// Represent that this user is contact
+        /// </summary>
+        public bool IsFriend
+        {
+            get { return _isFriend; }
+            set
+            {
+                _isFriend = value;
+                OnPropertyChanged("IsFriend");
+            }
+        }
+
+        private bool _isApproved = false;
+        /// <summary>
+        /// Represent that this user is approved contact
+        /// </summary>
+        public bool IsApproved
+        {
+            get { return _isApproved; }
+            set
+            {
+                _isApproved = value;
+                OnPropertyChanged("IsApproved");
+            }
+        }
+
+        private bool _isInitiatorToApprove = false;
+        /// <summary>
+        /// Represent that this user is initiator created contact
+        /// </summary>
+        public bool IsInitiatorToApprove
+        {
+            get { return _isInitiatorToApprove; }
+            set
+            {
+                _isInitiatorToApprove = value;
+                OnPropertyChanged("IsInitiatorToApprove");
+            }
+        }
+
         private UserStates _clientState;
         /// <summary>
         /// Client state
@@ -84,6 +113,17 @@ namespace NetLibrary.Models
                 _clientState = value;
                 OnPropertyChanged("ClientState");
             }
+        }
+
+        public void Copy(ClientModel model)
+        {
+            this.Id = model.Id;
+            this.Name = model.Name;
+            this.Email = model.Email;
+            this.IsFriend = model.IsFriend;
+            this.IsApproved = model.IsApproved;
+            this.IsInitiatorToApprove = model.IsInitiatorToApprove;
+            this.ClientState = model.ClientState;
         }
     }
 }

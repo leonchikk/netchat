@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using NetLibrary.EventsArgs;
@@ -22,6 +23,11 @@ namespace Server.Engine.Classes
         /// All user which connected to server
         /// </summary>
         List<Connection> CurrentConnections { get; set; } = new List<Connection>();
+
+        /// <summary>
+        /// All Notification which need transfer
+        /// </summary>
+        Dictionary<Guid, NotificationModel> CurrentNotifications { get; set; } = new Dictionary<Guid, NotificationModel>();
 
         public void Start(string ip, int port, out string error)
         {
@@ -86,6 +92,22 @@ namespace Server.Engine.Classes
             await NetHelper.SendDataAsync(initiator?.User?.TcpSocket, commandResultPacket);
         }
 
+        public async Task SendNotificationAsync(Guid targetId, NotificationModel notification)
+        {
+            var target = CurrentConnections.FirstOrDefault(c => c.User.Id == targetId);
+
+            if (target == null)
+                return;
+
+            Packet commandResultPacket = new Packet
+            {
+                ActionState = ActionStates.Notification,
+                Notification = notification
+            };
+
+            await NetHelper.SendDataAsync(target?.User?.TcpSocket, commandResultPacket);
+        }
+
         /// <summary>
         /// Send response data to all users which connected to server
         /// </summary>
@@ -93,6 +115,25 @@ namespace Server.Engine.Classes
         public void BroadcastResponse (Packet responseData, Connection initiator)
         {
             CurrentConnections.ForEach(async connection => await SendConversationResponseAsync(responseData, connection, initiator));
+        }
+
+        /// <summary>
+        /// Send response data to target user
+        /// </summary>
+        /// <param name="responseData">Data which need transfer to target client</param>
+        public async Task SendMessage(ConversationModel conversationData, Connection initiator)
+        {
+            var targetConnection = CurrentConnections.FirstOrDefault(connection => connection.User.Id == conversationData.Target.Id);
+            if (targetConnection == null)
+                return;
+
+            Packet messagePacket = new Packet
+            {
+                ActionState = ActionStates.Message,
+                Conversation = conversationData
+            };
+
+            await SendConversationResponseAsync(messagePacket, targetConnection, initiator);
         }
 
         /// <summary>
@@ -127,6 +168,7 @@ namespace Server.Engine.Classes
         private async void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
         {
             CommandModel commandResult = null;
+            
             switch (e.Command.CommandType)
             {
                 case CommandTypes.Authorization:
@@ -144,14 +186,54 @@ namespace Server.Engine.Classes
                     break;
 
                 case CommandTypes.UserInfo:
-                    
-                    await SendCommandResultAsync(sender, DBHelper.GetUserInfo(JObject.Parse(e.Command.Data)));
 
+                    var result = DBHelper.GetUserInfo(JObject.Parse(e.Command.Data));
+
+                    //Set Id to sender connection
+                    if (result.Item2 != Guid.Empty)
+                        CurrentConnections.FirstOrDefault(cc => cc.User.TcpSocket == sender.User.TcpSocket).User.Id = result.Item2;
+
+                    await SendCommandResultAsync(sender, result.Item1);
                     break;
 
                 case CommandTypes.Search:
 
                     await SendCommandResultAsync(sender, DBHelper.GetSearchResults(JObject.Parse(e.Command.Data)));
+                    break;
+
+                case CommandTypes.GetContacts:
+                    
+                    await SendCommandResultAsync(sender, DBHelper.GetContacts(JObject.Parse(e.Command.Data)));
+                    break;
+
+                case CommandTypes.SendToApproveContact:
+
+                    result = DBHelper.AddNewContact(JObject.Parse(e.Command.Data));
+
+                    if (result.Item2 != Guid.Empty)
+                        await SendNotificationAsync(result.Item2, new NotificationModel { NotificationType = NotificationTypes.NewContact });
+
+                    await SendCommandResultAsync(sender, result.Item1);
+                    break;
+
+                case CommandTypes.RemoveContact:
+
+                    result = DBHelper.RemoveContact(JObject.Parse(e.Command.Data));
+
+                    if (result.Item2 != Guid.Empty)
+                        await SendNotificationAsync(result.Item2, new NotificationModel { NotificationType = NotificationTypes.RemoveContact });
+
+                    await SendCommandResultAsync(sender, result.Item1);
+                    break;
+
+                case CommandTypes.ApproveContact:
+
+                    result = DBHelper.ApproveContact(JObject.Parse(e.Command.Data));
+
+                    if (result.Item2 != Guid.Empty)
+                        await SendNotificationAsync(result.Item2, new NotificationModel { NotificationType = NotificationTypes.ApprovedContact });
+
+                    await SendCommandResultAsync(sender, result.Item1);
                     break;
             }
         }

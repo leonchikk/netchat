@@ -67,6 +67,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Contact.cs">
+      <DependentUpon>MessengerModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MessengerModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User.cs">
+      <DependentUpon>MessengerModel.tt</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -77,39 +88,25 @@
     </Compile>
     <Compile Include="Engine\Classes\Connection.cs" />
     <Compile Include="Engine\Classes\Server.cs" />
-    <Compile Include="Engine\Contact.cs">
-      <DependentUpon>MessengerModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Engine\Helpers\CommandHelper.cs" />
     <Compile Include="Engine\Helpers\DBHelper.cs" />
     <Compile Include="Engine\Interfaces\IServer.cs" />
-    <Compile Include="Engine\MessengerModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MessengerModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Engine\MessengerModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MessengerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Engine\MessengerModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MessengerModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Engine\sysdiagram.cs">
-      <DependentUpon>MessengerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Engine\User.cs">
-      <DependentUpon>MessengerModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MessengerModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MessengerModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessengerModel.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -128,11 +125,11 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
-    <EntityDeploy Include="Engine\MessengerModel.edmx">
+    <EntityDeploy Include="MessengerModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>MessengerModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="Engine\MessengerModel.edmx.diagram">
+    <None Include="MessengerModel.edmx.diagram">
       <DependentUpon>MessengerModel.edmx</DependentUpon>
     </None>
     <None Include="packages.config" />
@@ -149,19 +146,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Engine\MessengerModel.Context.tt">
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="MessengerModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>MessengerModel.edmx</DependentUpon>
       <LastGenOutput>MessengerModel.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Engine\MessengerModel.tt">
+    <Content Include="MessengerModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>MessengerModel.edmx</DependentUpon>
       <LastGenOutput>MessengerModel.cs</LastGenOutput>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

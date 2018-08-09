@@ -46,6 +46,12 @@ namespace Client.Engine.Classes
         public delegate void ReceiveCommandResultHandler(object sender, ReceivedCommandResultsEventsArgs e);
 
         /// <summary>
+        /// Event which invoke when client received notification from server
+        /// </summary>
+        public event ReceiveNotificationHandler OnReceiveNotification;
+        public delegate void ReceiveNotificationHandler(ReceiveNotificationEventsArgs e);
+
+        /// <summary>
         /// Event which invoke when new user disconnected from server
         /// </summary>
         public event ReceiveResponseHandler OnUserDisconnected;
@@ -121,8 +127,10 @@ namespace Client.Engine.Classes
                     OnReceiveMessage(this, new ReceviedMessageEventsArgs(_receivedPacket.Conversation.Sender, _receivedPacket.Conversation.Message));
 
                 if (_receivedPacket?.ActionState == ActionStates.CommandResult && OnReceiveCommandResult != null)
-                    OnReceiveCommandResult(this, new ReceivedCommandResultsEventsArgs(_receivedPacket.Command.CommandType, _receivedPacket.Command.StatusCode, JObject.Parse(_receivedPacket.Command.Data)));
+                    OnReceiveCommandResult(this, new ReceivedCommandResultsEventsArgs(_receivedPacket.Command.CommandType, _receivedPacket.Command.StatusCode, _receivedPacket.Command.Data));
 
+                if (_receivedPacket?.ActionState == ActionStates.Notification && OnReceiveNotification != null)
+                    OnReceiveNotification(new ReceiveNotificationEventsArgs(_receivedPacket.Notification));
             }
             get
             {
@@ -206,17 +214,19 @@ namespace Client.Engine.Classes
         /// <param name="target">User is whom need transfer message</param>
         public async Task SendMessageAsync(string message, ClientModel target)
         {
+            ConversationModel conversation = new ConversationModel
+            {
+                Sender = CurrentUser,
+                Target = target,
+                Message = message
+            };
+
             Packet messagePacket = new Packet
             {
                 ActionState = ActionStates.Message,
-                ClientInfo = target,
-                Conversation = new ConversationModel
-                {
-                    Sender = CurrentUser,
-                    Target = target,
-                    Message = message
-                }
+                Conversation = conversation
             };
+
 
             await SendPacketAsync(messagePacket);
         }

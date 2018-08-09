@@ -31,14 +31,16 @@ namespace Client.Views
 
         private void OnReceiveCommandResult(object sender, ReceivedCommandResultsEventsArgs e)
         {
+            var response = JObject.Parse(e.CommandResult);
+
             if (e.StatusCode == StatusCodes.BadRequest)
             {
                 ErrorField.Visibility = Visibility.Visible;
-                ErrorField.Content = e.CommandResult["Message"].ToString();
+                ErrorField.Content = response["Message"].ToString();
                 return;
             }
         
-            CurrentConnection.ClientToken = e.CommandResult["Token"].ToString();
+            CurrentConnection.ClientToken = response["Token"].ToString();
 
             SignInResult = SignInResults.Success;
             Close();

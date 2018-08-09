@@ -11,6 +11,6 @@ namespace NetLibrary.Classes
         public ActionStates ActionState { get; set; }
         public ConversationModel Conversation { get; set; }
         public CommandModel Command { get; set; }
-        public string SystemMessage { get; set; }
+        public NotificationModel Notification { get; set; }
     }
 }

@@ -7,6 +7,7 @@
     <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
     <Property Name="User1" Type="uniqueidentifier" Nullable="false" />
     <Property Name="User2" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="IsApproved" Type="bit" Nullable="false" />
   </EntityType>
   <EntityType Name="sysdiagrams">
     <Key>
@@ -29,37 +30,66 @@
   </EntityType>
   <Association Name="FK_Contacts_Users">
     <End Role="Users" Type="Self.Users" Multiplicity="1" />
-    <End Role="Contacts" Type="Self.Contacts" Multiplicity="*" />
+    <End Role="Contacts" Type="Self.Contacts" Multiplicity="0..1" />
     <ReferentialConstraint>
       <Principal Role="Users">
         <PropertyRef Name="Id" />
       </Principal>
       <Dependent Role="Contacts">
-        <PropertyRef Name="User1" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_Contacts_Users1">
-    <End Role="Users" Type="Self.Users" Multiplicity="1" />
-    <End Role="Contacts" Type="Self.Contacts" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Users">
         <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="Contacts">
-        <PropertyRef Name="User2" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <!--Errors Found During Generation:
+warning 6037: Foreign key constraint 'FK_Contacts_Users1' has been omitted from the storage model. Column 'Id' of table 'MessangerModel.Store.Contacts' is a foreign key participating in multiple relationships. A one-to-one Entity Model will not validate since data inconsistency is possible.
+        <Association Name="FK_Contacts_Users1">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Contacts" Type="Self.Contacts" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Contacts">
+              <PropertyRef Name="Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>-->
+  <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+  <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="version" Type="int" Mode="In" />
+    <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+  </Function>
+  <Function Name="sp_creatediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="version" Type="int" Mode="In" />
+    <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+  </Function>
+  <Function Name="sp_dropdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_helpdiagramdefinition" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_helpdiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_renamediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="new_diagramname" Type="nvarchar" Mode="In" />
+  </Function>
+  <Function Name="sp_upgraddiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
   <EntityContainer Name="MessangerModelStoreContainer">
     <EntitySet Name="Contacts" EntityType="Self.Contacts" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK_Contacts_Users" Association="Self.FK_Contacts_Users">
-      <End Role="Users" EntitySet="Users" />
-      <End Role="Contacts" EntitySet="Contacts" />
-    </AssociationSet>
-    <AssociationSet Name="FK_Contacts_Users1" Association="Self.FK_Contacts_Users1">
       <End Role="Users" EntitySet="Users" />
       <End Role="Contacts" EntitySet="Contacts" />
     </AssociationSet>

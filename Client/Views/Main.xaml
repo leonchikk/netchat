@@ -3,12 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:c="clr-namespace:Client.Converters"
+        xmlns:md="clr-namespace:Client.Engine.Models"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         MinHeight="600" MinWidth="800"
         Height="600" Width="800">
+
+    <!--<Window.Resources>
+        <c:ReverseBoolToContactsListVisibilityConverter x:Key="reverseBoolToContactsListVisibilityConverter"/>
+        <c:ReverseBoolToSearchsListVisibilityConverter x:Key="reverseBoolToSearchsListVisibilityConverter"/>
+    </Window.Resources>-->
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -20,32 +28,259 @@
             <ColumnDefinition Width="230"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <!-- User name -->
         <Label x:Name="UserNameField"
-               Grid.Column="0"
-               Grid.Row="0"
-               VerticalAlignment="Center"
-               Content="{Binding Path=Name, Mode=TwoWay}">
-            
+                   Grid.Column="0"
+                   Grid.Row="0"
+                   VerticalAlignment="Center"
+                   Content="{Binding Path=Name, 
+                                     Mode=TwoWay, 
+                                     UpdateSourceTrigger=PropertyChanged}">
+
         </Label>
-        
+
+        <!-- Interlocutor name -->
+        <Grid Grid.Column="1"
+              Grid.Row="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="InterlocutorNameField"
+                   Grid.Column="0"
+                   VerticalAlignment="Center" 
+                   Content="{Binding Path=Interlocutor.Name, 
+                            Mode=TwoWay, 
+                            UpdateSourceTrigger=PropertyChanged}">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <Button x:Name="RemoveContactButton"
+                    Grid.Column="1"
+                    Click="RemoveContactButton_Click"
+                    Content="-">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button x:Name="AddToContactButton"
+                    Click="AddToContactButton_Click"
+                    Grid.Column="1"
+                    Content="+">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="True">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <!-- Message section -->
+        <Grid x:Name="MessageSection"
+              Grid.Row="3"
+              Grid.Column="1">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="50"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="MessageField"
+                     Grid.Column="0"/>
+            <Button x:Name="SendMessageButton"
+                    Click="SendMessageButton_Click"
+                    Grid.Column="1"
+                    Content="Send"/>
+
+            <Grid.Style>
+                <Style TargetType="{x:Type Grid}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsSelected,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+        </Grid>
+
+        <StackPanel x:Name="MessagePanel"
+                    Grid.Column="1"
+                    Grid.Row="2">
+            <!--- Here is need be a custom control-->
+            <Button x:Name="ApproveContactButton"
+                    Click="ApproveContactButton_Click"
+                    Content="Approve contact">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsInitiatorToApprove,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Messages list-->
+            <ListBox x:Name="MessagesList">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.Style>
+            </ListBox>
+
+            <StackPanel.Style>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsSelected,
+                                                Mode = TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+        </StackPanel>
+
         <!-- Search Field-->
-        <TextBox Grid.Column="0"
+        <TextBox x:Name="SearchField"
+                 Grid.Column="0"
                  Grid.Row="1"
+                 KeyDown="SearchField_KeyDown"
+                 TextChanged="SearchField_TextChanged"
                  Margin="0 5 0 5"/>
 
-        <!-- Contact list-->
-        <ListBox Grid.Column="0"
+        <!-- Contactі list-->
+        <ListBox x:Name="ContactList"
+                 SelectionChanged="Lists_SelectionChanged"
+                 Grid.Column="0"
                  Grid.Row="2"
                  Grid.RowSpan="2">
-            <ListBoxItem>Item1</ListBoxItem>
-            <ListBoxItem>Item2</ListBoxItem>
-            <ListBoxItem>Item3</ListBoxItem>
-            <ListBoxItem>Item4</ListBoxItem>
-            <ListBoxItem>Item5</ListBoxItem>
-            <ListBoxItem>Item6</ListBoxItem>
-            <ListBoxItem>Item7</ListBoxItem>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Label Content="{Binding Name}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <ListBox.Style>
+                <Style TargetType="{x:Type ListBox}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsSearchMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.Style>
         </ListBox>
+
+        <!-- Search results list-->
+        <ListBox x:Name="SearchResultsList"
+                 SelectionChanged="Lists_SelectionChanged"
+                 Grid.Column="0"
+                 Grid.Row="2"
+                 Grid.RowSpan="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Label Content="{Binding Name}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <ListBox.Style>
+                <Style TargetType="{x:Type ListBox}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsSearchMode}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.Style>
+        </ListBox>
+
     </Grid>
 </Window>

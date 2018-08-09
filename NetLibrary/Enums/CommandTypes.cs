@@ -6,5 +6,10 @@ namespace NetLibrary.Enums
         UserInfo,
         Authorization,
         Registration,
+        Search,
+        GetContacts,
+        SendToApproveContact,
+        ApproveContact,
+        RemoveContact
     }
 }

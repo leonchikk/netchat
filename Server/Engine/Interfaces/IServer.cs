@@ -1,6 +1,7 @@
 ﻿using NetLibrary.Classes;
 using NetLibrary.Models;
 using Server.Engine.Classes;
+using System;
 using System.Threading.Tasks;
 
 namespace Server.Engine.Interfaces
@@ -18,6 +19,11 @@ namespace Server.Engine.Interfaces
         Task SendCommandResultAsync(Connection initiator, CommandModel commandResult);
 
         /// <summary>
+        /// Send notification to client
+        /// </summary>
+        Task SendNotificationAsync(Guid targterId, NotificationModel notification);
+
+        /// <summary>
         /// Method which broadcast needed data to other client
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
@@ -25,10 +31,16 @@ namespace Server.Engine.Interfaces
         Task SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator);
 
         /// <summary>
-        /// Send response data to all users which connected to server
+        /// Send response data to all users 
         /// </summary>
         /// <param name="responseData">Data which need transfer to all clients</param>
         void BroadcastResponse(Packet responseData, Connection initiator);
+
+        /// <summary>
+        /// Send response data to target user
+        /// </summary>
+        /// <param name="responseData">Data which need transfer to target client</param>
+        Task SendMessage(ConversationModel responseData, Connection initiator);
 
         void CloseConnection(Connection initiator);
 

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("engine/messengermodel.context.tt")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("engine/messengermodel.tt")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("messengermodel.context.tt")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("messengermodel.tt")]
 
 

@@ -30,12 +30,14 @@ namespace Client.Views
 
         private void OnReceiveCommandResult(object sender, ReceivedCommandResultsEventsArgs e)
         {
+            var response = JObject.Parse(e.CommandResult);
+
             if (e.StatusCode == StatusCodes.BadRequest)
             {
                 Dispatcher.Invoke(() =>
                 {
                     ErrorField.Visibility = Visibility.Visible;
-                    ErrorField.Content = e.CommandResult["Message"].ToString();
+                    ErrorField.Content = response["Message"].ToString();
                 });
                 return;
             }
