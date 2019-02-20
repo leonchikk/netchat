@@ -7,6 +7,9 @@
         Message,
         Command,
         CommandResult,
-        Notification
+        Notification,
+        Video,
+        StartVideoCall,
+        StopVideoCall
     }
 }

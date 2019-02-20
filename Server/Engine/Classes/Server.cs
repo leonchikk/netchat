@@ -48,7 +48,7 @@ namespace Server.Engine.Classes
                 });
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex.Message;
             }
@@ -70,14 +70,14 @@ namespace Server.Engine.Classes
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        public async Task SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator)
+        public async Task<bool> SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator)
         {
             if (targetClient == initiator)
-                return;
+                return false;
 
-            await NetHelper.SendDataAsync(targetClient?.User?.TcpSocket, responseData);
+            return await NetHelper.SendDataAsync(targetClient?.User?.TcpSocket, responseData);
         }
-
+        
         /// <summary>
         /// Send command result to client
         /// </summary>
@@ -105,14 +105,16 @@ namespace Server.Engine.Classes
                 Notification = notification
             };
 
-            await NetHelper.SendDataAsync(target?.User?.TcpSocket, commandResultPacket);
+            //Add notification in query
+            if (!await NetHelper.SendDataAsync(target?.User?.TcpSocket, commandResultPacket))
+                CurrentNotifications.Add(targetId, notification);
         }
 
         /// <summary>
         /// Send response data to all users which connected to server
         /// </summary>
         /// <param name="responseData">Data which need transfer to all clients</param>
-        public void BroadcastResponse (Packet responseData, Connection initiator)
+        public void BroadcastResponse(Packet responseData, Connection initiator)
         {
             CurrentConnections.ForEach(async connection => await SendConversationResponseAsync(responseData, connection, initiator));
         }
@@ -121,11 +123,11 @@ namespace Server.Engine.Classes
         /// Send response data to target user
         /// </summary>
         /// <param name="responseData">Data which need transfer to target client</param>
-        public async Task SendMessage(ConversationModel conversationData, Connection initiator)
+        public async Task<bool> SendMessageAsync(ConversationModel conversationData, Connection initiator)
         {
             var targetConnection = CurrentConnections.FirstOrDefault(connection => connection.User.Id == conversationData.Target.Id);
             if (targetConnection == null)
-                return;
+                return false;
 
             Packet messagePacket = new Packet
             {
@@ -133,7 +135,25 @@ namespace Server.Engine.Classes
                 Conversation = conversationData
             };
 
-            await SendConversationResponseAsync(messagePacket, targetConnection, initiator);
+            return await SendConversationResponseAsync(messagePacket, targetConnection, initiator);
+        }
+
+        /// <summary>
+        /// Method which send video frame from one to another user
+        /// </summary>
+        public async Task<bool> SendVideoFrameAsync(ConversationModel conversationData, Connection initiator)
+        {
+            var targetConnection = CurrentConnections.FirstOrDefault(connection => connection.User.Id == conversationData.Target.Id);
+            if (targetConnection == null)
+                return false;
+
+            Packet videoPacket = new Packet
+            {
+                ActionState = ActionStates.Video,
+                Conversation = conversationData
+            };
+
+            return await SendConversationResponseAsync(videoPacket, targetConnection, initiator);
         }
 
         /// <summary>
@@ -158,8 +178,27 @@ namespace Server.Engine.Classes
             connection.OnReceivedMessage += Connection_OnReceivedMessage; ;
             connection.OnDisconnected += Connection_OnDisconnected;
             connection.OnReceivedCommand += Connection_OnReceivedCommand;
+            connection.OnReceivedVideoFrame += Connection_OnReceivedVideoFrame;
+            connection.OnStartSendingVideo += Connection_OnStartSendingVideo;
+            connection.OnStopSendingVideo += Connection_OnStopSendingVideo;
 
             connection.StartReceiveResponses();
+        }
+
+        /// <summary>
+        ///  Event which invoke when user start video call
+        /// </summary>
+        private async void Connection_OnStopSendingVideo(Connection sender, VideoCallEventArgs e)
+        {
+            await SendNotificationAsync(e.TargetId, new NotificationModel { NotificationType = NotificationTypes.StopVideoCall });
+        }
+
+        /// <summary>
+        ///  Event which invoke when user end video call
+        /// </summary>
+        private async void Connection_OnStartSendingVideo(Connection sender, VideoCallEventArgs e)
+        {
+            await SendNotificationAsync(e.TargetId, new NotificationModel { NotificationType = NotificationTypes.StartVideoCall });
         }
 
         /// <summary>
@@ -168,7 +207,7 @@ namespace Server.Engine.Classes
         private async void Connection_OnReceivedCommand(Connection sender, ReceivedCommandEventsArgs e)
         {
             CommandModel commandResult = null;
-            
+
             switch (e.Command.CommandType)
             {
                 case CommandTypes.Authorization:
@@ -191,7 +230,21 @@ namespace Server.Engine.Classes
 
                     //Set Id to sender connection
                     if (result.Item2 != Guid.Empty)
-                        CurrentConnections.FirstOrDefault(cc => cc.User.TcpSocket == sender.User.TcpSocket).User.Id = result.Item2;
+                    {
+                        var recentConnection = CurrentConnections.FirstOrDefault(cc => cc.User.TcpSocket == sender.User.TcpSocket);
+
+                        if (recentConnection != null)
+                            recentConnection.User.Id = result.Item2;
+
+                        var notification = CurrentNotifications.FirstOrDefault(n => n.Key == recentConnection.User.Id).Value;
+
+                        //Check that have user missed notification or not
+                        if (notification != null)
+                        {
+                            await SendNotificationAsync(recentConnection.User.Id, notification);
+                            CurrentNotifications.Remove(recentConnection.User.Id);
+                        }
+                    }
 
                     await SendCommandResultAsync(sender, result.Item1);
                     break;
@@ -202,7 +255,7 @@ namespace Server.Engine.Classes
                     break;
 
                 case CommandTypes.GetContacts:
-                    
+
                     await SendCommandResultAsync(sender, DBHelper.GetContacts(JObject.Parse(e.Command.Data)));
                     break;
 
@@ -250,9 +303,18 @@ namespace Server.Engine.Classes
         /// <summary>
         /// Event which invoke when server receive new response from other world
         /// </summary>
-        private void Connection_OnReceivedMessage(Connection sender, ReceivedPacketEventsArgs e)
+        private async void Connection_OnReceivedMessage(Connection sender, ReceivedPacketEventsArgs e)
         {
-            BroadcastResponse(e.ReceivedPacket, sender);
+            if (!await SendMessageAsync(e.ReceivedPacket.Conversation, sender))
+                CurrentNotifications.Add(e.ReceivedPacket.Conversation.Target.Id, new NotificationModel { NotificationType = NotificationTypes.Message });
+        }
+
+        /// <summary>
+        ///  Event which invoke when server receive video frame from one user
+        /// </summary>
+        private async void Connection_OnReceivedVideoFrame(Connection sender, ReceivedPacketEventsArgs e)
+        {
+            await SendVideoFrameAsync(e.ReceivedPacket.Conversation, sender);
         }
 
         /// <summary>

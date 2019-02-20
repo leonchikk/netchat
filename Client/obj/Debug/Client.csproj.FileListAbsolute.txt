@@ -1,7 +1,6 @@
 E:\SelfEducation\netchat\Client\bin\Debug\Client.exe.config
 E:\SelfEducation\netchat\Client\bin\Debug\Client.exe
 E:\SelfEducation\netchat\Client\bin\Debug\Client.pdb
-E:\SelfEducation\netchat\Client\obj\Debug\Client.csprojResolveAssemblyReference.cache
 E:\SelfEducation\netchat\Client\obj\Debug\App.g.cs
 E:\SelfEducation\netchat\Client\obj\Debug\Client_MarkupCompile.cache
 E:\SelfEducation\netchat\Client\obj\Debug\Client_MarkupCompile.lref
@@ -20,3 +19,16 @@ E:\SelfEducation\netchat\Client\obj\Debug\Views\SignIn.g.cs
 E:\SelfEducation\netchat\Client\obj\Debug\Views\SignUp.g.cs
 E:\SelfEducation\netchat\Client\obj\Debug\Views\SignIn.baml
 E:\SelfEducation\netchat\Client\obj\Debug\Views\SignUp.baml
+E:\SelfEducation\netchat\Client\obj\Debug\Client.csprojAssemblyReference.cache
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.dll
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Imaging.dll
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Math.dll
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Video.DirectShow.dll
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Video.dll
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.xml
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Imaging.xml
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Math.xml
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Video.xml
+E:\SelfEducation\netchat\Client\bin\Debug\AForge.Video.DirectShow.xml
+E:\SelfEducation\netchat\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+E:\SelfEducation\netchat\Client\obj\Debug\Client.csproj.CopyComplete

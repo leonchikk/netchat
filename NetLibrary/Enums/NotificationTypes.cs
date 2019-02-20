@@ -6,6 +6,8 @@ namespace NetLibrary.Enums
         NewContact,
         ApprovedContact,
         RemoveContact,
-        Message
+        Message,
+        StartVideoCall,
+        StopVideoCall
     }
 }

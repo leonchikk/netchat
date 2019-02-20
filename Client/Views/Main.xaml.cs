@@ -4,13 +4,21 @@ using Newtonsoft.Json.Linq;
 using NetLibrary.EventsArgs;
 using NetLibrary.Models;
 using System.Windows;
-using System;
+using AForge.Video;
+using AForge.Video.DirectShow;
 using System.Windows.Controls;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using NetLibrary.Helpers;
+using System.Drawing;
+using System.IO;
+using System;
+using System.Drawing.Imaging;
+using System.Threading;
 
 namespace Client.Views
 {
@@ -41,10 +49,12 @@ namespace Client.Views
             InitializeComponent();
             this.DataContext = CurrentConnection.CurrentClientInfo = new ClientModel();
 
+
             AddToContactButton.DataContext = RemoveContactButton.DataContext =
             InterlocutorNameField.DataContext = MessagePanel.DataContext =
             ApproveContactButton.DataContext = MessagesList.DataContext =
-            MessageSection.DataContext = _currentConversation;
+            StartVideoButton.DataContext = StopVideoButton.DataContext =
+            VideoField.DataContext = MessageSection.DataContext = _currentConversation;
 
             SearchResultsList.DataContext =
             ContactList.DataContext = _currentAppState;
@@ -53,8 +63,14 @@ namespace Client.Views
             SearchResultsList.ItemsSource = _searchResultsList;
 
             CurrentConnection.CurrentClient.OnReceiveCommandResult += OnReceiveCommandResult;
-            CurrentConnection.CurrentClient.OnReceiveNotification +=  OnReceiveNotification;
+            CurrentConnection.CurrentClient.OnReceiveNotification += OnReceiveNotification;
             CurrentConnection.CurrentClient.OnReceiveMessage += OnReceiveMessage;
+            CurrentConnection.CurrentClient.OnReceiveVideoFrame += OnReceiveVideoFrame;
+        }
+
+        private void OnReceiveVideoFrame(object sender, ReceviedVideoFrameEventsArgs e)
+        {
+            VideoField.Source = e.Frame;
         }
 
         private async Task GetSearchResultsAsync()
@@ -75,9 +91,9 @@ namespace Client.Views
         }
 
         #region Events
-        /// <summary>
-        /// Raised when take message from other user
-        /// </summary>
+        ///// <summary>
+        ///// Raised when take message from other user
+        ///// </summary>
         private void OnReceiveMessage(object sender, ReceviedMessageEventsArgs e)
         {
             if (_currentConversation.IsSelected && e.Sender.Id == _currentConversation.Interlocutor.Id)
@@ -112,6 +128,16 @@ namespace Client.Views
                     UpdateUIWhenDeletedContact();
                     break;
 
+                case NotificationTypes.StartVideoCall:
+
+                    _currentConversation.IsVideoCallStarted = true;
+                    break;
+
+                case NotificationTypes.StopVideoCall:
+
+                    _currentConversation.IsVideoCallStarted = false;
+                    break;
+
                 case NotificationTypes.Message:
                     break;
             }
@@ -134,6 +160,7 @@ namespace Client.Views
                     
                     CurrentConnection.ParseToClientModel(response);
                     CurrentConnection.CurrentClient.CurrentUser = CurrentConnection.CurrentClientInfo;
+
                     await GetContactsAsync();
 
                     break;
@@ -245,7 +272,7 @@ namespace Client.Views
             _contactsList.Remove(contactUser);
 
             _currentConversation.IsSelected = false;
-            _currentConversation.IsStarted = false;
+            _currentConversation.IsVideoCallStarted = false;
         }
 
         private async Task UpdateContactsAsync()
@@ -348,6 +375,16 @@ namespace Client.Views
             MessagesList.Items.Add(MessageField.Text);
 
             await CurrentConnection.CurrentClient.SendMessageAsync(MessageField.Text, _currentConversation.Interlocutor);
+        }
+
+        private async void StartVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            await CurrentConnection.CurrentClient.StartSendVideoAsync(_currentConversation.Interlocutor);
+        }
+
+        private async  void StopVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            await CurrentConnection.CurrentClient.StopSendVideoAsync();
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using NetLibrary.Classes;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -15,7 +16,7 @@ namespace NetLibrary.Helpers
         /// <returns>Response data</returns>
         public static Packet GetData(TcpClient tcpClient)
         {
-            byte[] responseData = new byte[2048];
+            byte[] responseData = new byte[1048576];
 
             int bytes = 0;
 
@@ -47,7 +48,7 @@ namespace NetLibrary.Helpers
         /// <returns>Response data</returns>
         public static async Task<Packet> GetDataAsync(TcpClient tcpClient)
         {
-            byte[] responseData = new byte[2048];
+            byte[] responseData = new byte[1048576];
 
             int bytes = 0;
 
@@ -66,10 +67,19 @@ namespace NetLibrary.Helpers
         /// </summary>
         /// <param name="tcpClient">Current client connection</param>
         /// <param name="data">Data which need transfer to server</param>
-        public static async Task SendDataAsync(TcpClient tcpClient, Packet data)
+        public static async Task<bool> SendDataAsync(TcpClient tcpClient, Packet data)
         {
-            var bytes = ToByteArray<Packet>(data);
-            await tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length);
+            try
+            {
+                var bytes = ToByteArray<Packet>(data);
+                await tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public static byte[] ToByteArray<T>(T obj)

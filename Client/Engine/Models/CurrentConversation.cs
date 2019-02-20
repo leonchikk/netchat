@@ -47,20 +47,20 @@ namespace Client.Engine.Models
             }
         }
 
-        private bool _isStarted = false;
+        private bool _isVideoCallStarted = false;
         /// <summary>
         /// Is conversation started
         /// </summary>
-        public bool IsStarted
+        public bool IsVideoCallStarted
         {
             get
             {
-                return _isStarted;
+                return _isVideoCallStarted;
             }
             set
             {
-                _isStarted = value;
-                OnPropertyChanged("IsStarted");
+                _isVideoCallStarted = value;
+                OnPropertyChanged("IsVideoCallStarted");
             }
         }
     }

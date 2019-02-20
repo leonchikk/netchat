@@ -28,7 +28,7 @@ namespace Server.Engine.Interfaces
         /// </summary>
         /// <param name="responseData">Data which need transfer to client</param>
         /// <param name="targetClient">Client which have to receive data</param>
-        Task SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator);
+        Task<bool> SendConversationResponseAsync(Packet responseData, Connection targetClient, Connection initiator);
 
         /// <summary>
         /// Send response data to all users 
@@ -40,7 +40,13 @@ namespace Server.Engine.Interfaces
         /// Send response data to target user
         /// </summary>
         /// <param name="responseData">Data which need transfer to target client</param>
-        Task SendMessage(ConversationModel responseData, Connection initiator);
+        Task<bool> SendMessageAsync(ConversationModel responseData, Connection initiator);
+
+        /// <summary>
+        /// Send response data to target user
+        /// </summary>
+        /// <param name="responseData">Data which need transfer to target client</param>
+        Task<bool> SendVideoFrameAsync(ConversationModel responseData, Connection initiator);
 
         void CloseConnection(Connection initiator);
 

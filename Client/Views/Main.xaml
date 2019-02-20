@@ -22,6 +22,7 @@
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -36,7 +37,7 @@
                    VerticalAlignment="Center"
                    Content="{Binding Path=Name, 
                                      Mode=TwoWay, 
-                                     UpdateSourceTrigger=PropertyChanged}">
+                                     UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0" Height="30">
 
         </Label>
 
@@ -46,6 +47,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
 
@@ -54,7 +56,7 @@
                    VerticalAlignment="Center" 
                    Content="{Binding Path=Interlocutor.Name, 
                             Mode=TwoWay, 
-                            UpdateSourceTrigger=PropertyChanged}">
+                            UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,10,0,0">
                 <Label.Style>
                     <Style TargetType="{x:Type Label}">
                         <Style.Triggers>
@@ -70,7 +72,7 @@
                 </Label.Style>
             </Label>
             <Button x:Name="RemoveContactButton"
-                    Grid.Column="1"
+                    Grid.Column="2"
                     Click="RemoveContactButton_Click"
                     Content="-">
                 <Button.Style>
@@ -92,9 +94,69 @@
                     </Style>
                 </Button.Style>
             </Button>
+
+            <Button x:Name="StartVideoButton"
+                    Grid.Column="1"
+                    Click="StartVideoButton_Click"
+                    Content="Start video" Margin="10,0">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsVideoCallStarted, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="True">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button x:Name="StopVideoButton"
+                    Grid.Column="1"
+                    Click="StopVideoButton_Click"
+                    Content="Stop video" Margin="10,0">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsVideoCallStarted, 
+                                               Mode=TwoWay, 
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
             <Button x:Name="AddToContactButton"
                     Click="AddToContactButton_Click"
-                    Grid.Column="1"
+                    Grid.Column="2"
                     Content="+">
                 <Button.Style>
                     <Style TargetType="{x:Type Button}">
@@ -119,7 +181,7 @@
 
         <!-- Message section -->
         <Grid x:Name="MessageSection"
-              Grid.Row="3"
+              Grid.Row="4"
               Grid.Column="1">
 
             <Grid.ColumnDefinitions>
@@ -160,38 +222,23 @@
             </Grid.Style>
         </Grid>
 
-        <StackPanel x:Name="MessagePanel"
+        <StackPanel x:Name="ConversationPanel"
                     Grid.Column="1"
-                    Grid.Row="2">
-            <!--- Here is need be a custom control-->
-            <Button x:Name="ApproveContactButton"
-                    Click="ApproveContactButton_Click"
-                    Content="Approve contact">
-                <Button.Style>
-                    <Style TargetType="{x:Type Button}">
+                    Grid.Row="2"
+                    Grid.RowSpan="2">
+            <Image x:Name="VideoField">
+                <!--<Image.Source>
+                <BitmapImage UriSource="C:\Users\suzym\Desktop\sky0.png"/>
+            </Image.Source>-->
+                <!--<Image.Style>
+                    <Style TargetType="{x:Type Image}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
-                                                Mode=TwoWay, 
-                                                UpdateSourceTrigger=PropertyChanged}" 
-                                     Value="True">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Path=Interlocutor.IsInitiatorToApprove,
+                            <DataTrigger Binding="{Binding Path=IsVideoCallStarted,
                                                 Mode=TwoWay, 
                                                 UpdateSourceTrigger=PropertyChanged}" 
                                      Value="False">
                                 <Setter Property="Visibility" Value="Collapsed" />
                             </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-
-            <!-- Messages list-->
-            <ListBox x:Name="MessagesList">
-                <ListBox.Style>
-                    <Style TargetType="{x:Type ListBox}">
-                        <Style.Triggers>
                             <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
                                                 Mode=TwoWay, 
                                                 UpdateSourceTrigger=PropertyChanged}" 
@@ -200,30 +247,73 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </ListBox.Style>
-            </ListBox>
+                </Image.Style>-->
+            </Image>
 
-            <StackPanel.Style>
-                <Style TargetType="{x:Type StackPanel}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsSelected,
+            <StackPanel x:Name="MessagePanel">
+
+                <!--- Here is need be a custom control-->
+                <Button x:Name="ApproveContactButton"
+                    Click="ApproveContactButton_Click"
+                    Content="Approve contact">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=Interlocutor.IsInitiatorToApprove,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!--Messages list-->
+                <ListBox x:Name="MessagesList">
+                    <ListBox.Style>
+                        <Style TargetType="{x:Type ListBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=Interlocutor.IsApproved,
+                                                Mode=TwoWay, 
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                     Value="False">
+                                    <Setter Property="Visibility" Value="Hidden" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.Style>
+                </ListBox>
+
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsSelected,
                                                 Mode = TwoWay, 
                                                 UpdateSourceTrigger=PropertyChanged}"
                                      Value="False">
 
-                            <Setter Property="Visibility" Value="Hidden" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend,
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=Interlocutor.IsFriend,
                                                 Mode=TwoWay, 
                                                 UpdateSourceTrigger=PropertyChanged}" 
                                      Value="False">
-                            <Setter Property="Visibility" Value="Hidden" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
-        </StackPanel>
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+            </StackPanel>
 
+        </StackPanel>
         <!-- Search Field-->
         <TextBox x:Name="SearchField"
                  Grid.Column="0"
@@ -237,7 +327,7 @@
                  SelectionChanged="Lists_SelectionChanged"
                  Grid.Column="0"
                  Grid.Row="2"
-                 Grid.RowSpan="2">
+                 Grid.RowSpan="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -262,7 +352,7 @@
                  SelectionChanged="Lists_SelectionChanged"
                  Grid.Column="0"
                  Grid.Row="2"
-                 Grid.RowSpan="2">
+                 Grid.RowSpan="4">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>

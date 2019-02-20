@@ -86,7 +86,7 @@ namespace Client.Views
             {
                 await CurrentConnection.CurrentClient.StartReceivingResponsesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 ErrorField.Visibility = Visibility.Visible;

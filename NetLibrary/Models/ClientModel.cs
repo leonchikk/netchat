@@ -27,7 +27,6 @@ namespace NetLibrary.Models
             set
             {
                 _id = value;
-                OnPropertyChanged("Id");
             }
         }
 

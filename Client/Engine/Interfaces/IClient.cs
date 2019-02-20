@@ -1,9 +1,10 @@
 ﻿using NetLibrary.Classes;
 using NetLibrary.Enums;
-using NetLibrary.EventsArgs;
 using NetLibrary.Models;
 using Newtonsoft.Json.Linq;
+using System.Drawing;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace Client.Engine.Interfaces
 {
@@ -28,6 +29,21 @@ namespace Client.Engine.Interfaces
         Task SendMessageAsync(string message, ClientModel target);
 
         /// <summary>
+        /// Send video to target user
+        /// </summary>
+        Task StartSendVideoAsync(ClientModel target);
+
+        /// <summary>
+        /// Stop sending video to target user
+        /// </summary>
+        Task StopSendVideoAsync();
+
+        /// <summary>
+        /// Send video frame to another user
+        /// </summary>
+        Task SendVideoFrameAsync(Bitmap frame, ClientModel target);
+
+        /// <summary>
         /// Send command to server and get response
         /// </summary>
         /// <param name="commandType">Command type</param>
@@ -35,7 +51,7 @@ namespace Client.Engine.Interfaces
         Task SendCommandAsync(CommandTypes commandType, JObject data);
 
         /// <summary>
-        /// Send request to remote/local server
+        /// Send request to server
         /// </summary>
         Task SendPacketAsync(Packet requestData);
 

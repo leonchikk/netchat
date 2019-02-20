@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Windows.Media.Imaging;
 
 namespace NetLibrary.Models
 {
@@ -47,6 +49,23 @@ namespace NetLibrary.Models
                 OnPropertyChanged("Target");
             }
         }
+
+        public Bitmap _videoFrame;
+        /// <summary>
+        /// 
+        /// </summary>
+        public Bitmap VideoFrame
+        {
+            get
+            {
+                return _videoFrame;
+            }
+            set
+            {
+                _videoFrame = value;
+            }
+        }
+
 
         public string _message;
         /// <summary>

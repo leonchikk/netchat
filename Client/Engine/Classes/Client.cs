@@ -9,8 +9,13 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Client.Engine.Interfaces;
 using NetLibrary.Classes;
-using System.Timers;
+using System.Linq;
 using System.Threading;
+using System.Windows.Media.Imaging;
+using AForge.Video.DirectShow;
+using System.Windows.Threading;
+using System.Drawing;
+using System.Net.WebSockets;
 
 namespace Client.Engine.Classes
 {
@@ -32,7 +37,13 @@ namespace Client.Engine.Classes
         /// </summary>
         public event ConnectionHandler OnClosedConnection;
         public delegate void ConnectionHandler(object sender, EventArgs e);
-        
+
+        /// <summary>
+        /// Event which invoke when client received videoframe from server
+        /// </summary>
+        public event ReceiveVideoFrameHandler OnReceiveVideoFrame;
+        public delegate void ReceiveVideoFrameHandler(object sender, ReceviedVideoFrameEventsArgs e);
+
         /// <summary>
         /// Event which invoke when client received message from server
         /// </summary>
@@ -64,10 +75,39 @@ namespace Client.Engine.Classes
         #endregion
 
         #region Properties
-        private object _lockTcpSocket;
 
         private CancellationTokenSource _cancelRecevingPacketSource = new CancellationTokenSource();
         private CancellationToken _cancelRecevingPacketToken = CancellationToken.None;
+
+        /// <summary>
+        /// Current Interlocutor
+        /// </summary>
+        private ClientModel _currentVideoInterlocutor { get; set; }
+
+        private FilterInfoCollection _captureDevices;
+        /// <summary>
+        /// All accessed devices
+        /// </summary>
+        public FilterInfoCollection CaptureDevices
+        {
+            get { return _captureDevices; }
+        }
+
+        private VideoCaptureDevice _captureDevice;
+        /// <summary>
+        /// Current selected capture device
+        /// </summary>
+        public VideoCaptureDevice CaptureDevice
+        {
+            get
+            {
+                return _captureDevice;
+            }
+            set
+            {
+                _captureDevice = value;
+            }
+        }
 
         private ClientModel _currentUser;
         /// <summary>
@@ -93,17 +133,11 @@ namespace Client.Engine.Classes
         {
             set
             {
-                lock (_lockTcpSocket)
-                {
-                    _tcpSocket = value;
-                }
+               _tcpSocket = value;
             }
             get
             {
-                lock (_lockTcpSocket)
-                {
-                    return _tcpSocket;
-                }
+               return _tcpSocket;
             }
         }
 
@@ -131,6 +165,9 @@ namespace Client.Engine.Classes
 
                 if (_receivedPacket?.ActionState == ActionStates.Notification && OnReceiveNotification != null)
                     OnReceiveNotification(new ReceiveNotificationEventsArgs(_receivedPacket.Notification));
+
+                if (_receivedPacket?.ActionState == ActionStates.Video && OnReceiveVideoFrame != null)
+                    OnReceiveVideoFrame(this, new ReceviedVideoFrameEventsArgs(_receivedPacket.Conversation.Sender, ImageHelper.ToBitmapImage(_receivedPacket.Conversation.VideoFrame)));
             }
             get
             {
@@ -144,15 +181,33 @@ namespace Client.Engine.Classes
         public Client()
         {
             _cancelRecevingPacketToken = _cancelRecevingPacketSource.Token;
+
+            _captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+
+            if (_captureDevices.Count > 0)
+            {
+                _captureDevice = new VideoCaptureDevice(_captureDevices[0].MonikerString);
+                //_captureDevice.VideoResolution = VideoCapabilities
+                _captureDevice.NewFrame += CaptureNewFrame;
+            }
+        }
+
+        private async void CaptureNewFrame(object sender, AForge.Video.NewFrameEventArgs eventArgs)
+        {
+            GC.Collect();
+            var frame = eventArgs.Frame;
+            await SendVideoFrameAsync(frame, _currentVideoInterlocutor);
         }
 
         /// <summary>
-        /// Connect to remote/local server
+        /// Connect to server
         /// </summary>
         public async Task TryConnectToServerAsync(string ip, int port)
         {
             try
             {
+                //WebSocket socket = 
+
                 _tcpSocket = new TcpClient();
                 await _tcpSocket.ConnectAsync(ip, port);
 
@@ -206,6 +261,28 @@ namespace Client.Engine.Classes
         public async Task SendPacketAsync(Packet requestData)
         {
             await NetHelper.SendDataAsync(_tcpSocket, requestData);
+        }
+
+        /// <summary>
+        /// Send video frame to another user
+        /// </summary>
+        public async Task SendVideoFrameAsync(Bitmap frame, ClientModel target)
+        {
+            ConversationModel conversation = new ConversationModel
+            {
+                Sender = CurrentUser,
+                Target = target,
+                VideoFrame = frame
+            };
+
+            Packet messagePacket = new Packet
+            {
+                ActionState = ActionStates.Video,
+                Conversation = conversation
+            };
+
+
+            await SendPacketAsync(messagePacket);
         }
 
         /// <summary>
@@ -270,6 +347,56 @@ namespace Client.Engine.Classes
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Stop sending video to target user
+        /// </summary>
+        public async Task StopSendVideoAsync()
+        {
+            if (_captureDevice != null && _captureDevice.IsRunning)
+            {
+                _captureDevice.Stop();
+
+                var conversation = new ConversationModel
+                {
+                    Target = _currentVideoInterlocutor
+                };
+
+                Packet startVideoCallPacket = new Packet
+                {
+                    ActionState = ActionStates.StopVideoCall,
+                    Conversation = conversation
+                };
+
+                await SendPacketAsync(startVideoCallPacket);
+            }
+        }
+
+
+        /// <summary>
+        /// Send video frame to another user
+        /// </summary>
+        public async Task StartSendVideoAsync(ClientModel target)
+        {
+            if (_captureDevice != null && !_captureDevice.IsRunning)
+            {
+                _captureDevice.Start();
+                _currentVideoInterlocutor = target;
+
+                var conversation = new ConversationModel
+                {
+                    Target = target
+                };
+
+                Packet startVideoCallPacket = new Packet
+                {
+                    ActionState = ActionStates.StartVideoCall,
+                    Conversation = conversation
+                };
+
+                await SendPacketAsync(startVideoCallPacket);
             }
         }
 
